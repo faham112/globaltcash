@@ -22,7 +22,11 @@ export default async function UserDashboard() {
 
   if (!user) return <div className="text-white p-10 font-bold text-center">Identity Not Found</div>;
 
-  const totalDeposits = user.deposits.reduce((acc, curr) => acc + curr.amount, 0);
+  // Filter out plan purchases from actual deposits
+  const actualDeposits = user.deposits.filter(d => d.gateway !== "Internal Balance");
+  const activePlans = user.deposits.filter(d => d.gateway === "Internal Balance" && d.status === "ACTIVE");
+  
+  const totalDeposits = actualDeposits.reduce((acc, curr) => acc + curr.amount, 0);
   const totalWithdrawals = user.withdrawals.reduce((acc, curr) => acc + curr.amount, 0);
 
   return (
@@ -123,7 +127,7 @@ export default async function UserDashboard() {
             </div>
             <div className="mt-2 sm:mt-0">
               <p className="text-white/60 text-[9px] md:text-[10px] font-black uppercase tracking-widest mb-1">Active Plans</p>
-              <h3 className="text-xl md:text-3xl font-black text-white tracking-tight">{user.deposits.filter(d => d.status === 'ACTIVE' || d.status === 'APPROVED').length}</h3>
+              <h3 className="text-xl md:text-3xl font-black text-white tracking-tight">{activePlans.length}</h3>
             </div>
           </div>
 
@@ -155,7 +159,7 @@ export default async function UserDashboard() {
           </div>
           
           <div className="bg-white border border-slate-200 rounded-[2.5rem] p-6 md:p-8 relative overflow-hidden shadow-sm">
-            {user.deposits.length === 0 ? (
+            {actualDeposits.length === 0 ? (
               <div className="text-center py-24 bg-slate-50 rounded-[2rem] border-2 border-dashed border-slate-100 flex flex-col items-center gap-4">
                 <div className="p-4 bg-slate-200/50 rounded-full text-slate-300">
                    <Activity size={32} />
@@ -164,7 +168,7 @@ export default async function UserDashboard() {
               </div>
             ) : (
               <div className="space-y-4 relative z-10">
-                {user.deposits.slice(0, 5).map((dep) => (
+                {actualDeposits.slice(0, 5).map((dep) => (
                   <div key={dep.id} className="flex items-center justify-between p-5 bg-slate-50 border border-slate-100 rounded-[1.5rem] hover:border-purple-200 hover:bg-white hover:shadow-md transition-all group">
                     <div className="flex items-center gap-5">
                        <div className="relative">
@@ -199,6 +203,54 @@ export default async function UserDashboard() {
                              dep.status === 'REJECTED' ? 'bg-red-500/10 text-red-600 border border-red-500/20' : 
                              'bg-amber-500/10 text-amber-600 border border-amber-500/20'
                           }`}>{dep.status}</span>
+                       </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Active Plans Section */}
+        <div className="space-y-6">
+          <div className="flex items-center justify-between px-2">
+            <h2 className="text-xl font-black uppercase italic tracking-tighter text-purple-950">
+              Active <span className="text-purple-600">Plans</span>
+            </h2>
+          </div>
+          
+          <div className="bg-white border border-slate-200 rounded-[2.5rem] p-6 md:p-8 relative overflow-hidden shadow-sm">
+            {activePlans.length === 0 ? (
+              <div className="text-center py-24 bg-slate-50 rounded-[2rem] border-2 border-dashed border-slate-100 flex flex-col items-center gap-4">
+                <div className="p-4 bg-slate-200/50 rounded-full text-slate-300">
+                   <Activity size={32} />
+                </div>
+                <p className="text-slate-300 text-[10px] font-black uppercase tracking-[0.4em]">No Active Plans</p>
+              </div>
+            ) : (
+              <div className="space-y-4 relative z-10">
+                {activePlans.slice(0, 5).map((plan) => (
+                  <div key={plan.id} className="flex items-center justify-between p-5 bg-slate-50 border border-slate-100 rounded-[1.5rem] hover:border-purple-200 hover:bg-white hover:shadow-md transition-all group">
+                    <div className="flex items-center gap-5">
+                       <div className="w-10 h-10 bg-purple-600/10 border border-purple-600/20 text-purple-600 flex items-center justify-center rounded-xl group-hover:bg-purple-600 group-hover:text-white transition-all shadow-sm">
+                         <Wallet size={20} />
+                       </div>
+                       <div>
+                          <p className="text-xs font-black uppercase tracking-tight text-slate-900">{plan.planName || 'Plan Purchase'}</p>
+                          <p className="text-[9px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-0.5">ID: {plan.transactionId?.substring(0, 12) || 'N/A'}</p>
+                       </div>
+                    </div>
+                    <div className="text-right">
+                       <p className="text-lg font-black text-slate-900 tracking-tighter">
+                          +Rs. {plan.amount.toLocaleString()}
+                       </p>
+                       <div className="flex flex-col items-end gap-1">
+                          <span className={`px-2 py-0.5 rounded-full text-[7px] font-black uppercase tracking-widest ${
+                             plan.status === 'APPROVED' || plan.status === 'ACTIVE' ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20' : 
+                             plan.status === 'REJECTED' ? 'bg-red-500/10 text-red-600 border border-red-500/20' : 
+                             'bg-amber-500/10 text-amber-600 border border-amber-500/20'
+                          }`}>{plan.status}</span>
                        </div>
                     </div>
                   </div>
