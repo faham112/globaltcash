@@ -97,7 +97,7 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="pt-10 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-6 text-[10px] font-black uppercase tracking-widest text-slate-400">
-            <span>© {currentYear} Exotic Cash Network</span>
+            <span>© {currentYear} Global Trust Cash Network</span>
             <span className="hidden md:block w-1 h-1 bg-slate-200 rounded-full" />
             <span className="flex items-center gap-1.5 text-emerald-500">
               <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />

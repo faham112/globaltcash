@@ -130,7 +130,7 @@ export default function LoginPage() {
 
         <div className="text-center space-y-4">
           <p className="text-slate-400 text-xs">
-            New to Exotic Cash?{" "}
+            New to Global Trust Cash?{" "}
             <Link href="/register" className="text-purple-600 font-bold hover:underline italic">Register Now</Link>
           </p>
           <Link href="/" className="inline-block text-slate-400 hover:text-slate-600 text-[10px] font-black uppercase tracking-widest transition italic">

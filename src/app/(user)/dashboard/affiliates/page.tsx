@@ -21,7 +21,7 @@ export default async function ReferralsPage() {
 
   if (!user) return <div className="text-white p-10 font-bold text-center">Identity Not Found</div>;
 
-  const referralLink = `${process.env.NEXTAUTH_URL || 'https://exotic-cash.com'}/register?ref=${user.id}`;
+  const referralLink = `${process.env.NEXTAUTH_URL || 'https://globaltrust.cash'}/register?ref=${user.id}`;
 
   return (
     <div className="p-4 md:p-8 lg:p-10 pt-24 lg:pt-10 max-w-[1400px] mx-auto w-full animate-in fade-in slide-in-from-bottom-4 duration-700">
