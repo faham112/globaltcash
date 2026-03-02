@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 
 const prismaClientSingleton = () => {
-  const datasourceOption = process.env.DATABASE_URL
+  const datasourceOption: any = process.env.DATABASE_URL
     ? { datasources: { db: { url: process.env.DATABASE_URL } } }
     : {};
 

@@ -9,7 +9,7 @@ const Link = ({ href, children, className, onClick }: any) => (
 );
 
 const usePathname = () => "/"; // Mock pathname
-const useSession = () => ({ data: null, status: "unauthenticated" }); // Mock session
+const useSession = (): { data: any | null; status: "authenticated" | "unauthenticated" | "loading" } => ({ data: null, status: "unauthenticated" }); // Mock session
 const signOut = () => console.log("Signing out...");
 
 // Inline BrandLogo and LogoIcon to prevent resolution errors
