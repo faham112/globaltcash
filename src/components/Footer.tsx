@@ -59,16 +59,16 @@ export default function Footer() {
               The world&apos;s most advanced investment platform. Redefining digital earning through secure and stable infrastructure.
             </p>
             <div className="flex items-center gap-4">
-              <a href="#" className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 hover:text-purple-600 hover:border-purple-200 transition-all shadow-sm">
+              <a href="#" className="w-10 h-10 rounded-xl bg-[#1e293b] border border-[#22c55e]/20 flex items-center justify-center text-slate-400 hover:text-[#22c55e] hover:border-[#22c55e]/40 transition-all shadow-sm">
                 <Twitter size={18} />
               </a>
-              <a href="#" className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 hover:text-purple-600 hover:border-purple-200 transition-all shadow-sm">
+              <a href="#" className="w-10 h-10 rounded-xl bg-[#1e293b] border border-[#22c55e]/20 flex items-center justify-center text-slate-400 hover:text-[#22c55e] hover:border-[#22c55e]/40 transition-all shadow-sm">
                 <Linkedin size={18} />
               </a>
-              <a href="#" className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 hover:text-purple-600 hover:border-purple-200 transition-all shadow-sm">
+              <a href="#" className="w-10 h-10 rounded-xl bg-[#1e293b] border border-[#22c55e]/20 flex items-center justify-center text-slate-400 hover:text-[#22c55e] hover:border-[#22c55e]/40 transition-all shadow-sm">
                 <Github size={18} />
               </a>
-              <a href="#" className="w-10 h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 hover:text-purple-600 hover:border-purple-200 transition-all shadow-sm">
+              <a href="#" className="w-10 h-10 rounded-xl bg-[#1e293b] border border-[#22c55e]/20 flex items-center justify-center text-slate-400 hover:text-[#22c55e] hover:border-[#22c55e]/40 transition-all shadow-sm">
                 <Mail size={18} />
               </a>
             </div>
@@ -83,7 +83,7 @@ export default function Footer() {
               <ul className="space-y-4">
                 {section.links.map((link) => (
                   <li key={link.name}>
-                    <Link href={link.href} className="text-sm text-slate-600 hover:text-purple-600 transition-colors flex items-center group gap-1">
+                    <Link href={link.href} className="text-sm text-slate-400 hover:text-[#22c55e] transition-colors flex items-center group gap-1">
                       <ChevronRight size={12} className="opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all" />
                       {link.name}
                     </Link>
@@ -95,23 +95,23 @@ export default function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-10 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-6">
+        <div className="pt-10 border-t border-[#22c55e]/20 flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-6 text-[10px] font-black uppercase tracking-widest text-slate-400">
             <span>© {currentYear} Global Trust Cash Network</span>
-            <span className="hidden md:block w-1 h-1 bg-slate-200 rounded-full" />
-            <span className="flex items-center gap-1.5 text-emerald-500">
-              <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+            <span className="hidden md:block w-1 h-1 bg-[#1e293b] rounded-full" />
+            <span className="flex items-center gap-1.5 text-[#22c55e]">
+              <span className="w-1.5 h-1.5 bg-[#22c55e] rounded-full animate-pulse" />
               Mainnet Active
             </span>
           </div>
           
           <div className="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest text-slate-400">
-            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 rounded-lg border border-slate-100">
-              <Shield size={12} className="text-purple-600" />
+            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[#1e293b] rounded-lg border border-[#22c55e]/20">
+              <Shield size={12} className="text-[#22c55e]" />
               <span>SSL Secure Connection</span>
             </div>
-            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 rounded-lg border border-slate-100">
-              <Globe size={12} className="text-purple-600" />
+            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[#1e293b] rounded-lg border border-[#22c55e]/20">
+              <Globe size={12} className="text-[#22c55e]" />
               <span>Global Availability</span>
             </div>
           </div>
