@@ -152,13 +152,13 @@ export default function DepositPage() {
     <div className="p-4 md:p-10 pt-24 lg:pt-10 max-w-4xl mx-auto space-y-8 text-slate-900">
       <div className="lg:hidden">
         <div className="flex items-center gap-3 mb-2">
-          <div className="bg-purple-600 h-8 w-1.5 rounded-full shadow-[0_0_15px_rgba(147,51,234,0.3)]" />
+          <div className="bg-[#22c55e] h-8 w-1.5 rounded-full shadow-[0_0_15px_rgba(34,197,94,0.3)]" />
           <h1 className="text-3xl font-black uppercase tracking-tighter italic text-slate-900 leading-none">
-            Deposit <span className="text-purple-600">Funds</span>
+            Deposit <span className="text-[#22c55e]">Funds</span>
           </h1>
         </div>
         <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.4em] ml-5">
-          Secure Deposit Panel • Gateway: <span className="text-purple-600 italic">Verified</span>
+          Secure Deposit Panel • Gateway: <span className="text-[#22c55e] italic">Verified</span>
         </p>
       </div>
 
@@ -171,19 +171,19 @@ export default function DepositPage() {
                 Rs. {profile ? formatPKR(profile.totalDeposited) : "0.00"}
               </h3>
            </div>
-           <div className="bg-purple-600/10 p-3 rounded-2xl border border-purple-600/10">
-              <Zap className="text-purple-600" size={24} />
+           <div className="bg-[#22c55e]/10 p-3 rounded-2xl border border-[#22c55e]/10">
+              <Zap className="text-[#22c55e]" size={24} />
            </div>
         </div>
         <div className="bg-white border border-slate-200 p-6 rounded-[2rem] flex items-center justify-between shadow-sm">
            <div>
               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Available Balance</p>
-              <h3 className="text-3xl font-black text-purple-600 tracking-tighter italic">
+              <h3 className="text-3xl font-black text-[#22c55e] tracking-tighter italic">
                 Rs. {profile ? formatPKR(profile.balance) : "0.00"}
               </h3>
            </div>
-           <div className="bg-purple-600/10 p-3 rounded-2xl border border-purple-600/10">
-              <Wallet className="text-purple-600" size={24} />
+           <div className="bg-[#22c55e]/10 p-3 rounded-2xl border border-[#22c55e]/10">
+              <Wallet className="text-[#22c55e]" size={24} />
            </div>
         </div>
       </div>
@@ -199,7 +199,7 @@ export default function DepositPage() {
             <div 
               key={m.id} 
               onClick={() => setSelectedMethod(m)}
-              className={`p-6 rounded-[2rem] border cursor-pointer transition-all flex flex-col items-center text-center gap-4 ${selectedMethod?.id === m.id ? 'border-purple-600 bg-purple-600/10 scale-105 shadow-xl shadow-purple-600/10' : 'border-slate-200 bg-white hover:border-slate-300'}`}
+              className={`p-6 rounded-[2rem] border cursor-pointer transition-all flex flex-col items-center text-center gap-4 ${selectedMethod?.id === m.id ? 'border-[#22c55e] bg-[#22c55e]/10 scale-105 shadow-xl shadow-[#22c55e]/10' : 'border-slate-200 bg-white hover:border-slate-300'}`}
             >
               {m.logo}
               <div>
@@ -210,7 +210,7 @@ export default function DepositPage() {
               {/* Mobile-only Deployment Console - Appears immediately below the selected method on small screens */}
               {selectedMethod?.id === m.id && (
                 <div className="col-span-full space-y-8 mt-4 lg:hidden w-full">
-                  <div className="bg-white border border-purple-600/30 p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden">
+                  <div className="bg-white border border-[#22c55e]/30 p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden">
                     <div className="absolute -top-10 -right-10 opacity-[0.03] scale-150 rotate-12 pointer-events-none">
                       <selectedMethod.logo.type {...selectedMethod.logo.props} className="w-64 h-64" />
                     </div>
@@ -222,7 +222,7 @@ export default function DepositPage() {
                           <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-[0.3em] mb-4 italic">Payment Details</h4>
                           <div className="bg-slate-50 border border-slate-100 p-6 rounded-2xl flex justify-between items-center group/addr">
                             <div>
-                              <p className="text-xl font-mono text-purple-600 break-all leading-tight">{selectedMethod.account || selectedMethod.address}</p>
+                              <p className="text-xl font-mono text-[#22c55e] break-all leading-tight">{selectedMethod.account || selectedMethod.address}</p>
                               {selectedMethod.holder && <p className="text-[10px] font-black uppercase text-slate-500 mt-2">Account Name: {selectedMethod.holder}</p>}
                             </div>
                             <button 
@@ -234,8 +234,8 @@ export default function DepositPage() {
                           </div>
                         </div>
                         
-                        <div className="p-4 bg-purple-600/5 border border-purple-600/10 rounded-2xl">
-                          <p className="text-[9px] font-bold text-purple-600 uppercase tracking-widest leading-relaxed">
+                        <div className="p-4 bg-[#22c55e]/5 border border-[#22c55e]/10 rounded-2xl">
+                          <p className="text-[9px] font-bold text-[#22c55e] uppercase tracking-widest leading-relaxed">
                             Transfer the exact amount to the account shown above, then upload your receipt below to verify your deposit.
                           </p>
                         </div>
@@ -248,7 +248,7 @@ export default function DepositPage() {
                           <input 
                             type="number" 
                             placeholder="0.00" 
-                            className="w-full bg-slate-50 border border-slate-100 p-5 rounded-2xl outline-none focus:border-purple-600 text-3xl font-black text-slate-900 transition-all placeholder:text-slate-200"
+                            className="w-full bg-slate-50 border border-slate-100 p-5 rounded-2xl outline-none focus:border-[#22c55e] text-3xl font-black text-slate-900 transition-all placeholder:text-slate-200"
                             onChange={(e) => setAmount(e.target.value)} 
                             value={amount}
                             required
@@ -267,7 +267,7 @@ export default function DepositPage() {
                           />
                           <label 
                             htmlFor="slip-upload"
-                            className="w-full bg-slate-50 border border-slate-100 p-5 rounded-2xl flex items-center justify-between cursor-pointer hover:border-purple-600/50 transition-all group"
+                            className="w-full bg-slate-50 border border-slate-100 p-5 rounded-2xl flex items-center justify-between cursor-pointer hover:border-[#22c55e]/50 transition-all group"
                           >
                             {slipImage ? (
                               <div className="flex items-center gap-3">
@@ -276,7 +276,7 @@ export default function DepositPage() {
                               </div>
                             ) : (
                               <div className="flex items-center gap-3">
-                                <Zap size={20} className="text-slate-300 group-hover:text-purple-600 transition-colors" />
+                                <Zap size={20} className="text-slate-300 group-hover:text-[#22c55e] transition-colors" />
                                 <span className="text-[10px] font-black uppercase text-slate-400 group-hover:text-slate-600">Browse Slip</span>
                               </div>
                             )}
@@ -289,7 +289,7 @@ export default function DepositPage() {
 
                         <button 
                           disabled={loading}
-                          className="w-full bg-purple-600 py-5 rounded-2xl font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 text-white hover:bg-purple-700 transition shadow-2xl shadow-purple-600/40 active:scale-[0.98] text-[11px]"
+                          className="w-full bg-[#22c55e] py-5 rounded-2xl font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 text-white hover:bg-[#16a34a] transition shadow-2xl shadow-[#22c55e]/40 active:scale-[0.98] text-[11px]"
                         >
                           {loading ? "Processing..." : <><Zap size={18} /> Deposit Now</>}
                         </button>
@@ -306,7 +306,7 @@ export default function DepositPage() {
       {/* Laptop-only Deployment Console - Appears at the bottom for large screens */}
       {selectedMethod && (
         <div className="hidden lg:block space-y-8 animate-in fade-in slide-in-from-bottom-4">
-          <div className="bg-white border border-purple-600/30 p-8 rounded-[2.5rem] space-y-8 shadow-2xl relative overflow-hidden">
+          <div className="bg-white border border-[#22c55e]/30 p-8 rounded-[2.5rem] space-y-8 shadow-2xl relative overflow-hidden">
             <div className="absolute -top-10 -right-10 opacity-[0.03] scale-150 rotate-12 pointer-events-none">
               <selectedMethod.logo.type {...selectedMethod.logo.props} className="w-64 h-64" />
             </div>
@@ -330,8 +330,8 @@ export default function DepositPage() {
                   </div>
                 </div>
                 
-                <div className="p-4 bg-purple-600/5 border border-purple-600/10 rounded-2xl">
-                  <p className="text-[9px] font-bold text-purple-600 uppercase tracking-widest leading-relaxed">
+                <div className="p-4 bg-[#22c55e]/5 border border-[#22c55e]/10 rounded-2xl">
+                  <p className="text-[9px] font-bold text-[#22c55e] uppercase tracking-widest leading-relaxed">
                     Transfer the exact amount to the account shown above, then upload your receipt below to verify your deposit.
                   </p>
                 </div>
@@ -344,7 +344,7 @@ export default function DepositPage() {
                   <input 
                     type="number" 
                     placeholder="0.00" 
-                    className="w-full bg-slate-50 border border-slate-100 p-5 rounded-2xl outline-none focus:border-purple-600 text-3xl font-black text-slate-900 transition-all placeholder:text-slate-200"
+                    className="w-full bg-slate-50 border border-slate-100 p-5 rounded-2xl outline-none focus:border-[#22c55e] text-3xl font-black text-slate-900 transition-all placeholder:text-slate-200"
                     onChange={(e) => setAmount(e.target.value)} 
                     value={amount}
                     required
@@ -363,7 +363,7 @@ export default function DepositPage() {
                   />
                   <label 
                     htmlFor="slip-upload"
-                    className="w-full bg-slate-50 border border-slate-100 p-5 rounded-2xl flex items-center justify-between cursor-pointer hover:border-purple-600/50 transition-all group"
+                    className="w-full bg-slate-50 border border-slate-100 p-5 rounded-2xl flex items-center justify-between cursor-pointer hover:border-[#22c55e]/50 transition-all group"
                   >
                     {slipImage ? (
                       <div className="flex items-center gap-3">
@@ -372,7 +372,7 @@ export default function DepositPage() {
                       </div>
                     ) : (
                       <div className="flex items-center gap-3">
-                        <Zap size={20} className="text-slate-300 group-hover:text-purple-600 transition-colors" />
+                        <Zap size={20} className="text-slate-300 group-hover:text-[#22c55e] transition-colors" />
                         <span className="text-[10px] font-black uppercase text-slate-400 group-hover:text-slate-600">Browse Slip</span>
                       </div>
                     )}
@@ -385,7 +385,7 @@ export default function DepositPage() {
 
                 <button 
                   disabled={loading}
-                  className="w-full bg-purple-600 py-5 rounded-2xl font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 text-white hover:bg-purple-700 transition shadow-2xl shadow-purple-600/40 active:scale-[0.98] text-[11px]"
+                  className="w-full bg-[#22c55e] py-5 rounded-2xl font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 text-white hover:bg-[#16a34a] transition shadow-2xl shadow-[#22c55e]/40 active:scale-[0.98] text-[11px]"
                 >
                   {loading ? "Processing..." : <><Zap size={18} /> Deposit Now</>}
                 </button>
