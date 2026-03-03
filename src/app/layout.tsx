@@ -47,7 +47,7 @@ export default function RootLayout({
                Agar Dashboard nahi hai, to Navbar ki wajah se 'pt-20' (Padding Top) deni zaroori hai
                taake Login/Register page Navbar ke peeche na chupen.
             */}
-            <main className={!isDashboard ? "min-h-[80vh] pt-20 md:pt-24" : ""}>
+            <main className={!isDashboard ? "min-h-[80vh] pt-15 md:pt-15" : ""}>
               {children}
             </main>
 
