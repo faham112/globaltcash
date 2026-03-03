@@ -1,8 +1,8 @@
-"use client"; // Ye line zaroori hai kyunke hum usePathname use kar rahe hain
+"use client";
 
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { usePathname } from "next/navigation"; // Path check karne ke liye
+import { usePathname } from "next/navigation"; 
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,8 +27,7 @@ export default function RootLayout({
 }>) {
   const pathname = usePathname();
 
-  // Check karo ke kya user dashboard area mein hai
-  // Agar path "/dashboard" ya "/admin" se shuru hota hai to true hoga
+  // Dashboard ya Admin check
   const isDashboard = pathname?.startsWith("/dashboard") || pathname?.startsWith("/admin");
 
   return (
@@ -38,17 +37,23 @@ export default function RootLayout({
       >
         <AuthProvider>
           <TonProvider>
+            
             {/* AGAR DASHBOARD NAHI HAI, TABHI NAVBAR DIKHAO */}
             {!isDashboard && <Navbar />}
             
             <Toaster position="top-center" richColors theme="dark" />
             
-            <main className={!isDashboard ? "min-h-[70vh]" : ""}>
+            {/* MASELA YAHAN THA: 
+               Agar Dashboard nahi hai, to Navbar ki wajah se 'pt-20' (Padding Top) deni zaroori hai
+               taake Login/Register page Navbar ke peeche na chupen.
+            */}
+            <main className={!isDashboard ? "min-h-[80vh] pt-20 md:pt-24" : ""}>
               {children}
             </main>
 
             {/* AGAR DASHBOARD NAHI HAI, TABHI FOOTER DIKHAO */}
             {!isDashboard && <Footer />}
+            
           </TonProvider>
         </AuthProvider>
       </body>
