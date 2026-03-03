@@ -1,13 +1,14 @@
 "use client";
 
-import { Zap, ShieldCheck, Trophy, Crown, ArrowRight, X, Loader2, CheckCircle2, Cpu } from "lucide-react";
+import { Zap, Trophy, Crown, ArrowRight, X, Loader2, CheckCircle2, Cpu } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { usePlanSync } from "@/hooks/usePlanSync";
 
+// Exact screenshot accent color: Rose-Red
 const iconMap: Record<string, any> = {
-  Zap: <Zap className="text-[#22c55e]" />,
-  Trophy: <Trophy className="text-yellow-600" />,
-  Crown: <Crown className="text-indigo-600" />,
+  Zap: <Zap className="text-[#E11D48]" size={22} />,
+  Trophy: <Trophy className="text-[#E11D48]" size={22} />,
+  Crown: <Crown className="text-[#E11D48]" size={22} />,
 };
 
 export default function PlansPage() {
@@ -18,268 +19,174 @@ export default function PlansPage() {
   const [success, setSuccess] = useState(false);
   const [activeTerminals, setActiveTerminals] = useState<any[]>([]);
   const [fetchingActive, setFetchingActive] = useState(true);
-  const [fetchingPlans, setFetchingPlans] = useState(true);
-  const [syncStatus, setSyncStatus] = useState<string>("Initializing...");
+  const [syncStatus, setSyncStatus] = useState<string>("Online");
 
   useEffect(() => {
     fetchPlans();
     fetchActivePlans();
   }, []);
 
-  // Handle real-time plan updates
-  const handlePlanChange = useCallback((event: any) => {
-    if (event.type === 'CONNECTED') {
-      setSyncStatus("Live");
-      console.log("✅ Connected to real-time plan updates");
-      return;
-    }
-
-    if (event.type === 'UPDATE' || event.type === 'CREATE') {
-      console.log("🔄 Plan update detected:", event);
-      setSyncStatus("Syncing...");
-      fetchPlans();
-      setTimeout(() => setSyncStatus("Live"), 1000);
-    } else if (event.type === 'DELETE') {
-      console.log("🗑️ Plan deleted:", event.planId);
-      setSyncStatus("Syncing...");
-      fetchPlans();
-      setTimeout(() => setSyncStatus("Live"), 1000);
-    }
-  }, []);
-
-  // Use plan sync hook
-  usePlanSync(handlePlanChange, true);
-
   const fetchPlans = async () => {
     try {
       const res = await fetch("/api/plans");
       const data = await res.json();
-      if (Array.isArray(data)) {
-        setPlans(data);
-      }
-    } catch (err) {
-      console.error("Failed to fetch plans");
-    } finally {
-      setFetchingPlans(false);
-    }
+      if (Array.isArray(data)) setPlans(data);
+    } catch (err) { console.error(err); }
   };
 
   const fetchActivePlans = async () => {
     try {
       const res = await fetch("/api/user/active-plans");
       const data = await res.json();
-      if (Array.isArray(data)) {
-        setActiveTerminals(data);
-      }
-    } catch (err) {
-      console.error("Failed to fetch active plans");
-    } finally {
-      setFetchingActive(false);
-    }
+      if (Array.isArray(data)) setActiveTerminals(data);
+    } catch (err) { console.error(err); }
+    finally { setFetchingActive(false); }
   };
 
   const handlePurchase = async () => {
-    if (!amount || parseFloat(amount) < selectedPlan.minAmount || parseFloat(amount) > selectedPlan.maxAmount) {
-      alert(`Please enter an amount between Rs. ${selectedPlan.minAmount} and Rs. ${selectedPlan.maxAmount}`);
-      return;
-    }
-
+    if (!amount) return;
     setLoading(true);
     try {
       const res = await fetch("/api/plans/purchase", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          planName: selectedPlan.name,
-          amount: parseFloat(amount)
-        })
+        body: JSON.stringify({ planName: selectedPlan.name, amount: parseFloat(amount) })
       });
-
-      const data = await res.json();
       if (res.ok) {
         setSuccess(true);
-        fetchActivePlans(); // Refresh the list
-        setTimeout(() => {
-          setSuccess(false);
-          setSelectedPlan(null);
-          setAmount("");
-        }, 3000);
-      } else {
-        alert(data.error || "Purchase failed");
+        fetchActivePlans();
+        setTimeout(() => { setSuccess(false); setSelectedPlan(null); setAmount(""); }, 2000);
       }
-    } catch (err) {
-      alert("Something went wrong");
-    } finally {
-      setLoading(false);
-    }
+    } catch (err) { console.error(err); }
+    finally { setLoading(false); }
   };
 
   return (
-    <div className="p-4 md:p-8 pt-24 lg:pt-10 max-w-7xl mx-auto min-h-screen space-y-12">
-      {/* Page Header - Hidden on Desktop */}
-      <div className="mb-10 text-slate-900 lg:hidden">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="bg-[#22c55e] h-8 w-1.5 rounded-full shadow-[0_0_15px_rgba(34,197,94,0.3)]" />
-          <h1 className="text-3xl font-black uppercase tracking-tighter italic text-slate-900 leading-none">
-            Investment <span className="text-[#22c55e]">Plans</span>
-          </h1>
-        </div>
-        <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.4em] ml-5">
-           Active Investment Plans • Status: <span className={`italic uppercase ${syncStatus === 'Live' ? 'text-emerald-600' : 'text-yellow-600'}`}>{syncStatus}</span>
-        </p>
-      </div>
-
-      {/* 2. Active Deployments Section */}
-      <div className="space-y-6">
-        <div className="flex items-center gap-3">
-           <Cpu size={16} className={`${syncStatus === 'Live' ? 'text-emerald-600' : 'text-yellow-600'} animate-pulse`} />
-           <h2 className="text-xs font-black uppercase tracking-[0.3em] text-slate-400 italic">My Active Plans</h2>
-        </div>
-
-        {fetchingActive ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="h-32 bg-slate-50 border border-slate-100 rounded-[2rem] animate-pulse" />
-            ))}
+    // EXACT SCREENSHOT THEME
+    <div className="bg-[#F3F4F6] min-h-screen p-5 md:p-10 pt-24 lg:pt-10 font-sans text-[#1F2937]">
+      <div className="max-w-6xl mx-auto space-y-12">
+        
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div>
+            <h1 className="text-3xl font-black tracking-tight text-[#111827]">
+              Current <span className="text-[#E11D48]">Plans</span>
+            </h1>
+            <p className="text-[#6B7280] text-sm font-medium mt-1 italic">Live plans monitoring active.</p>
           </div>
-        ) : activeTerminals.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {activeTerminals.map((node: any) => (
-              <div key={node.id} className="bg-white border border-[#22c55e]/20 p-6 rounded-[2rem] relative overflow-hidden group shadow-sm">
-                 <div className="absolute top-0 right-0 p-4">
-                    <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_#10b981]" />
-                 </div>
-                 <div className="flex flex-col gap-1 mb-4">
-                    <p className="text-[9px] font-black text-[#22c55e] uppercase tracking-widest">{node.planName}</p>
-                    <h3 className="text-xl font-bold text-slate-900 tracking-tighter italic">Rs. {node.amount.toFixed(2)}</h3>
-                 </div>
-                 <div className="flex items-center justify-between mt-auto pt-4 border-t border-slate-100">
-                    <div className="flex flex-col">
-                       <span className="text-[8px] font-black text-slate-400 uppercase">Started on</span>
-                       <span className="text-[10px] font-bold text-slate-600">{new Date(node.createdAt).toLocaleDateString()}</span>
+          <div className="flex items-center gap-3 bg-white px-5 py-2.5 rounded-2xl shadow-sm border border-[#E5E7EB]">
+             <div className="w-2.5 h-2.5 bg-[#10B981] rounded-full animate-pulse" />
+             <span className="text-[10px] font-black uppercase tracking-widest text-[#4B5563]">{syncStatus}</span>
+          </div>
+        </div>
+
+        {/* 1. Active Plans - Minimalist White Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {fetchingActive ? (
+            [1, 2].map(i => <div key={i} className="h-44 bg-white rounded-[2rem] shadow-sm animate-pulse" />)
+          ) : activeTerminals.length > 0 ? (
+            activeTerminals.map((node: any) => (
+              <div key={node.id} className="bg-white p-7 rounded-[2.5rem] shadow-[0_10px_40px_rgba(0,0,0,0.03)] border border-white relative overflow-hidden transition-all hover:shadow-md">
+                 <div className="flex justify-between items-start mb-6">
+                    <div className="bg-[#FFF1F2] p-3.5 rounded-2xl text-[#E11D48] border border-[#FFE4E6]">
+                       <Cpu size={24} />
                     </div>
-                    <div className="bg-emerald-50 px-3 py-1 rounded-full border border-emerald-100">
-                       <span className="text-[9px] font-black text-emerald-600 uppercase tracking-tighter">Active...</span>
-                    </div>
+                    <div className="bg-[#ECFDF5] text-[#059669] text-[9px] font-black px-3 py-1.5 rounded-xl uppercase tracking-wider">Active</div>
                  </div>
+                 <p className="text-[10px] font-bold text-[#9CA3AF] uppercase tracking-[0.2em] mb-1">{node.planName}</p>
+                 <h3 className="text-2xl font-black text-[#111827]">Rs. {node.amount.toLocaleString()}</h3>
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="bg-slate-50 border border-slate-200 p-10 rounded-[2.5rem] text-center">
-             <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em] italic">No active plans found. Start a plan below to earn profit.</p>
-          </div>
-        )}
-      </div>
-
-      {/* 3. Available Plans Grid */}
-      <div className="space-y-6">
-        <div className="flex items-center gap-3">
-           <Zap size={16} className="text-yellow-500" />
-           <h2 className="text-xs font-black uppercase tracking-[0.3em] text-zinc-500 italic">Choose a Plan</h2>
+            ))
+          ) : (
+            <div className="col-span-full py-10 text-center bg-white rounded-[2rem] border border-[#E5E7EB] shadow-sm">
+               <p className="text-[#9CA3AF] text-xs font-bold uppercase tracking-widest">Waiting for plans...</p>
+            </div>
+          )}
         </div>
-        {fetchingPlans ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[1, 2, 3].map(i => (
-              <div key={i} className="h-64 bg-slate-50 border border-slate-100 rounded-[2rem] animate-pulse" />
-            ))}
+
+        {/* 2. Available Plans - Butter White with Rose Red Accent */}
+        <div className="space-y-8">
+          <div className="flex items-center gap-4">
+             <h2 className="text-2xl font-black text-[#111827]">Investment Plans</h2>
+             <div className="h-[2px] flex-1 bg-[#E5E7EB]" />
           </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {plans.map((plan, i) => (
-              <div key={i} className={`relative bg-white border ${plan.popular ? 'border-[#22c55e]/30 shadow-lg shadow-[#22c55e]/5' : 'border-slate-200'} p-8 rounded-[2.5rem] flex flex-col group hover:scale-[1.02] transition-transform`}>
-                {plan.popular && <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#22c55e] text-[9px] font-black px-4 py-1 rounded-full uppercase italic text-white">Top Performer</span>}
-                
-                <div className="bg-slate-50 p-4 w-fit rounded-2xl border border-slate-100 mb-6 group-hover:border-[#22c55e]/30 transition-colors">
-                  {iconMap[plan.icon] || <Zap className="text-[#22c55e]" />}
-                </div>
-                <h3 className="text-xl font-black uppercase italic tracking-tighter mb-4 text-slate-900">{plan.name}</h3>
-                
-                <div className="mb-8">
-                  <span className="text-5xl font-black text-slate-900">{plan.roi}%</span>
-                  <span className="text-[10px] font-black text-slate-400 uppercase ml-2">Daily Yield</span>
+              <div key={i} className={`bg-white p-9 rounded-[3rem] shadow-[0_20px_60px_rgba(0,0,0,0.05)] border-2 ${plan.popular ? 'border-[#E11D48]/10' : 'border-white'} flex flex-col hover:scale-[1.01] transition-all duration-300`}>
+                <div className="flex justify-between items-center mb-10">
+                   <div className="bg-[#F9FAFB] p-4 rounded-2xl border border-[#F3F4F6]">
+                      {iconMap[plan.icon] || <Zap className="text-[#E11D48]" />}
+                   </div>
+                   {plan.popular && <span className="bg-[#E11D48] text-white text-[9px] font-black px-4 py-1.5 rounded-full shadow-lg shadow-rose-200 uppercase tracking-tighter">Most Active</span>}
                 </div>
 
-                <div className="space-y-4 mb-8 text-xs font-bold uppercase tracking-wider text-slate-600">
-                  <div className="flex justify-between border-b border-slate-100 pb-2">
-                    <span className="text-slate-400">Min/Max:</span> 
-                    <span>Rs. {plan.minAmount} - Rs. {plan.maxAmount}</span>
+                <h3 className="text-xl font-black text-[#111827] mb-2">{plan.name}</h3>
+                <div className="mb-10">
+                   <div className="flex items-baseline gap-1">
+                      <span className="text-5xl font-black text-[#111827]">{plan.roi}%</span>
+                      <span className="text-xs font-black text-[#E11D48] uppercase italic">/ Daily</span>
+                   </div>
+                </div>
+
+                <div className="space-y-4 mb-10 text-[11px] font-bold text-[#6B7280]">
+                  <div className="flex justify-between items-center pb-3 border-b border-[#F9FAFB]">
+                    <span className="uppercase tracking-widest opacity-60">Entry Range</span> 
+                    <span className="text-[#111827]">Rs. {plan.minAmount} - {plan.maxAmount}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Duration:</span> 
-                    <span>{plan.duration}</span>
+                  <div className="flex justify-between items-center">
+                    <span className="uppercase tracking-widest opacity-60">Contract</span> 
+                    <span className="text-[#111827]">{plan.duration}</span>
                   </div>
                 </div>
 
                 <button 
                   onClick={() => setSelectedPlan(plan)}
-                  className={`w-full py-4 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 text-white ${plan.popular ? 'bg-[#22c55e] hover:bg-[#16a34a] shadow-xl shadow-[#22c55e]/20' : 'bg-slate-800 hover:bg-slate-900'}`}
+                  className={`w-full py-5 rounded-2xl font-black text-[11px] uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-2 ${plan.popular ? 'bg-[#E11D48] text-white hover:bg-[#BE123C] shadow-lg shadow-rose-100' : 'bg-[#111827] text-white hover:bg-black shadow-lg shadow-gray-200'}`}
                 >
-                  Start Investment <ArrowRight size={14} />
+                  Start Plan <ArrowRight size={16} />
                 </button>
               </div>
             ))}
           </div>
-        )}
+        </div>
       </div>
 
-      {/* Purchase Modal */}
+      {/* Confirmation Modal - Exact Screenshot Style */}
       {selectedPlan && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-300">
-          <div className="bg-white border border-slate-200 w-full max-w-md rounded-[2.5rem] p-8 relative overflow-hidden shadow-2xl">
-            <div className="absolute -top-24 -right-24 w-64 h-64 bg-[#22c55e]/5 rounded-full blur-[80px]" />
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-[#111827]/30 backdrop-blur-sm">
+          <div className="bg-white w-full max-w-md rounded-[3rem] p-10 relative shadow-2xl">
+            <button onClick={() => setSelectedPlan(null)} className="absolute top-8 right-8 text-[#D1D5DB] hover:text-[#111827] transition-colors"><X size={24} /></button>
             
-            <button 
-              onClick={() => setSelectedPlan(null)}
-              className="absolute top-6 right-6 text-slate-400 hover:text-slate-900 transition"
-            >
-              <X size={20} />
-            </button>
-
-            <div className="relative z-10">
-              <div className="flex items-center gap-4 mb-6">
-                <div className="bg-[#22c55e]/10 p-3 rounded-2xl text-[#22c55e]">
-                  {iconMap[selectedPlan.icon] || <Zap size={24} />}
-                </div>
-                <div>
-                  <h3 className="text-xl font-black uppercase italic tracking-tighter text-slate-900">{selectedPlan.name}</h3>
-                  <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest">Investment Confirmation</p>
-                </div>
+            <div className="flex flex-col items-center text-center mb-10">
+              <div className="bg-[#FFF1F2] p-5 rounded-3xl text-[#E11D48] border border-[#FFE4E6] mb-4">
+                 {iconMap[selectedPlan.icon] || <Zap size={30} />}
               </div>
+              <h3 className="text-2xl font-black text-[#111827]">{selectedPlan.name}</h3>
+              <p className="text-[10px] font-bold text-[#9CA3AF] uppercase tracking-widest mt-1">Configure Deployment</p>
+            </div>
 
-              <div className="space-y-6">
-                <div>
-                  <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Investment Amount (Rs.)</label>
+            <div className="space-y-8">
+              <div className="space-y-3">
+                <label className="text-[10px] font-black text-[#9CA3AF] uppercase tracking-[0.2em] ml-1">Investment Amount</label>
+                <div className="relative">
                   <input 
                     type="number" 
                     value={amount}
                     onChange={(e) => setAmount(e.target.value)}
-                    placeholder={`Min Rs. ${selectedPlan.minAmount}`}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 px-6 mt-2 text-slate-900 focus:outline-none focus:border-[#22c55e] transition-all font-bold"
+                    className="w-full bg-[#F9FAFB] border-2 border-[#F3F4F6] focus:border-[#E11D48] focus:bg-white rounded-2xl py-5 px-8 text-[#111827] outline-none font-black text-xl transition-all"
+                    placeholder="0.00"
                   />
-                  <p className="text-[9px] text-slate-400 mt-2 uppercase font-bold italic">Enter amount between Rs. ${selectedPlan.minAmount} and Rs. ${selectedPlan.maxAmount}</p>
                 </div>
-
-                <div className="bg-[#22c55e]/50 border border-[#22c55e]/100 p-4 rounded-2xl">
-                   <div className="flex justify-between text-[10px] font-black uppercase tracking-tight text-slate-500 mb-1">
-                      <span>Daily Profit</span>
-                      <span className="text-emerald-600">+{selectedPlan.roi}%</span>
-                   </div>
-                   <div className="flex justify-between text-[10px] font-black uppercase tracking-tight text-slate-500">
-                      <span>Term Duration</span>
-                      <span className="text-slate-900">{selectedPlan.duration}</span>
-                   </div>
-                </div>
-
-                <button 
-                  onClick={handlePurchase}
-                  disabled={loading || success}
-                  className={`w-full py-5 rounded-2xl font-black uppercase tracking-[0.2em] text-[11px] transition-all flex items-center justify-center gap-3 ${success ? 'bg-emerald-600' : 'bg-[#22c55e] hover:bg-[#16a34a] shadow-xl shadow-[#22c55e]/20'} disabled:opacity-50 text-white`}
-                >
-                  {loading ? <Loader2 className="animate-spin" size={18} /> : success ? <CheckCircle2 size={18} /> : <Zap size={18} />}
-                  {loading ? "Processing..." : success ? "Plan Active" : "Confirm Investment"}
-                </button>
               </div>
+
+              <button 
+                onClick={handlePurchase}
+                disabled={loading || success}
+                className={`w-full py-5 rounded-2xl font-black uppercase text-[11px] tracking-[0.2em] transition-all flex items-center justify-center gap-3 ${success ? 'bg-[#10B981]' : 'bg-[#E11D48] hover:bg-[#BE123C] shadow-xl shadow-rose-100'} text-white disabled:opacity-50`}
+              >
+                {loading ? <Loader2 className="animate-spin" size={20} /> : success ? <CheckCircle2 size={20} /> : "Finalize Activation"}
+              </button>
             </div>
           </div>
         </div>

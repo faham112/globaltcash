@@ -2,7 +2,7 @@ import { db } from "@/lib/db";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { redirect } from "next/navigation";
-import { Users, TrendingUp, Activity, Copy, ShieldCheck } from "lucide-react";
+import { Users, TrendingUp, Activity, Copy, ShieldCheck, Share2, Zap } from "lucide-react";
 import CopyButton from "@/components/CopyButton";
 
 export default async function ReferralsPage() {
@@ -24,146 +24,159 @@ export default async function ReferralsPage() {
   const referralLink = `${process.env.NEXTAUTH_URL || 'https://globaltrust.cash'}/register?ref=${user.id}`;
 
   return (
-    <div className="p-4 md:p-8 lg:p-10 pt-24 lg:pt-10 max-w-[1400px] mx-auto w-full animate-in fade-in slide-in-from-bottom-4 duration-700">
-      
-      {/* 1. Header Section */}
-      <div className="mb-10 text-slate-900">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="bg-[#22c55e] h-8 w-1.5 rounded-full shadow-[0_0_15px_rgba(34,197,94,0.5)]" />
-          <h1 className="text-3xl font-black uppercase tracking-tighter italic text-slate-900 leading-none">
-            Referral <span className="text-[#22c55e]">Program</span>
-          </h1>
-        </div>
-        <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.4em] ml-5">
-           Expand your network • Earn 10% instant commission
-        </p>
-      </div>
-
-      {/* 2. Referral System Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+    <div className="bg-[#F3F4F6] min-h-screen p-4 md:p-8 lg:p-10 pt-24 lg:pt-10 font-sans text-[#1F2937]">
+      <div className="max-w-[1400px] mx-auto w-full animate-in fade-in slide-in-from-bottom-4 duration-700 space-y-10">
         
-        {/* Main Referral Terminal */}
-        <div className="lg:col-span-2 p-[1px] bg-gradient-to-r from-[#22c55e] via-[#16a34a] to-[#22c55e] rounded-[2.5rem] shadow-[0_0_30px_rgba(34,197,94,0.3)] group overflow-hidden">
-          <div className="bg-slate-900 rounded-[2.4rem] p-6 md:p-8 relative h-full overflow-hidden flex flex-col justify-between">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-[#22c55e]/10 blur-[80px] -z-10 group-hover:bg-[#22c55e]/20 transition-all duration-700" />
-            
-            <div className="flex flex-col sm:flex-row items-center gap-6 mb-8">
-               <div className="relative shrink-0">
-                  <div className="absolute inset-0 bg-[#22c55e] blur-xl opacity-40 animate-pulse" />
-                  <div className="relative w-16 h-16 bg-gradient-to-br from-[#22c55e] to-[#10b981] rounded-2xl flex items-center justify-center text-white border border-white/20 shadow-2xl">
-                    <Users size={32} className="group-hover:scale-110 transition-transform" />
-                  </div>
-               </div>
-               <div className="text-center sm:text-left">
-                  <div className="flex items-center justify-center sm:justify-start gap-3 mb-1">
-                    <span className="px-2 py-0.5 bg-[#22c55e] text-white text-[9px] font-black uppercase tracking-tighter rounded-md">Tier 1</span>
-                    <h2 className="text-xl md:text-3xl font-black text-white uppercase italic tracking-tighter">Your Referral Link</h2>
-                  </div>
-                  <p className="text-slate-400 text-[10px] md:text-xs font-medium uppercase tracking-widest flex items-center justify-center sm:justify-start gap-2">
-                    <Activity size={12} className="text-[#22c55e]" />
-                    Share your unique link to scale your earnings
-                  </p>
-               </div>
-            </div>
-
-            <div className="w-full">
-               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 bg-white/5 border border-white/10 p-2 rounded-2xl backdrop-blur-sm group-hover:border-[#22c55e]/30 transition-all">
-                  <div className="flex-1 px-4 py-3 sm:py-0 overflow-hidden">
-                     <p className="text-slate-500 text-[9px] uppercase font-black mb-1 tracking-widest">Your Referral Link</p>
-                     <p className="text-white text-xs md:text-sm font-bold truncate opacity-80">{referralLink}</p>
-                  </div>
-                  <CopyButton text={referralLink} className="py-4 px-8" />
-               </div>
-            </div>
+        {/* 1. Header Section */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div>
+            <h1 className="text-4xl font-black tracking-tighter text-[#111827] uppercase italic">
+              Affiliate <span className="text-[#E11D48]">Network</span>
+            </h1>
+            <p className="text-[#6B7280] text-[10px] font-black uppercase tracking-[0.4em] mt-2">
+              Scale your team • Earn 10% instant commission
+            </p>
+          </div>
+          <div className="bg-white px-5 py-2 rounded-2xl shadow-sm border border-[#E5E7EB] flex items-center gap-2 w-fit">
+            <Zap size={14} className="text-[#E11D48] fill-[#E11D48]" />
+            <span className="text-[10px] font-black uppercase tracking-widest text-[#4B5563]">Rewards: Active</span>
           </div>
         </div>
 
-        {/* Network Stats Card */}
-        <div className="bg-slate-900 border border-slate-800 p-8 rounded-[2.5rem] flex flex-col justify-between shadow-2xl relative overflow-hidden group">
-           <div className="absolute top-0 right-0 w-48 h-48 bg-[#22c55e]/20 blur-[60px] opacity-30 group-hover:opacity-60 transition-opacity" />
-           <div className="relative z-10">
-              <div className="flex items-center gap-4 mb-8">
-                 <div className="p-4 bg-[#22c55e]/10 rounded-2xl border border-[#22c55e]/30 text-[#22c55e] shadow-[0_0_20px_rgba(34,197,94,0.2)]">
-                    <TrendingUp size={28} />
-                 </div>
-                 <div>
-                    <h3 className="text-xl font-black uppercase italic tracking-tighter text-white leading-tight">Referral<br/><span className="text-[#22c55e]">Stats</span></h3>
-                 </div>
-              </div>
+        {/* 2. Referral System Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          
+          {/* Main Referral Terminal */}
+          <div className="lg:col-span-2 relative group">
+            <div className="absolute inset-0 bg-[#E11D48] blur-[100px] opacity-[0.03] pointer-events-none" />
+            <div className="bg-[#111827] rounded-[3rem] p-8 md:p-12 shadow-2xl relative overflow-hidden h-full flex flex-col justify-between border border-white/5">
               
-              <div className="space-y-6">
-                <div>
-                   <p className="text-slate-500 text-[9px] font-black uppercase tracking-widest mb-1">Total Referrals</p>
-                   <h4 className="text-3xl font-black text-white italic">{user.referredUsers?.length || 0} Users</h4>
+              {/* Decoration */}
+              <div className="absolute top-0 right-0 w-96 h-96 bg-[#E11D48]/10 blur-[120px] rounded-full -mr-20 -mt-20 pointer-events-none" />
+              
+              <div className="relative z-10">
+                <div className="flex flex-col sm:flex-row items-center gap-8 mb-12">
+                  <div className="relative shrink-0">
+                    <div className="absolute inset-0 bg-[#E11D48] blur-2xl opacity-20 animate-pulse" />
+                    <div className="relative w-20 h-20 bg-gradient-to-br from-[#E11D48] to-[#9F1239] rounded-[2rem] flex items-center justify-center text-white border border-white/10 shadow-2xl">
+                      <Share2 size={36} strokeWidth={2.5} />
+                    </div>
+                  </div>
+                  <div className="text-center sm:text-left space-y-2">
+                    <div className="flex items-center justify-center sm:justify-start gap-3">
+                      <span className="px-3 py-1 bg-[#E11D48] text-white text-[9px] font-black uppercase tracking-widest rounded-full">Elite Tier</span>
+                      <h2 className="text-2xl md:text-4xl font-black text-white uppercase italic tracking-tighter">Growth Link</h2>
+                    </div>
+                    <p className="text-white/40 text-xs font-bold uppercase tracking-[0.2em] flex items-center justify-center sm:justify-start gap-2">
+                      <Activity size={14} className="text-[#E11D48]" />
+                      Invite partners to unlock passive streams
+                    </p>
+                  </div>
+                </div>
+
+                <div className="w-full space-y-4">
+                  <p className="text-white/20 text-[10px] uppercase font-black tracking-[0.3em] ml-2">Personal Invitation URI</p>
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 bg-white/[0.03] border border-white/10 p-3 rounded-[2rem] backdrop-blur-md group-hover:border-[#E11D48]/30 transition-all shadow-inner">
+                    <div className="flex-1 px-5 py-3 sm:py-0 overflow-hidden">
+                      <p className="text-white/80 text-sm font-mono truncate tracking-tight">{referralLink}</p>
+                    </div>
+                    <CopyButton text={referralLink} className="!bg-[#E11D48] !text-white !rounded-2xl !py-4 !px-10 !font-black !text-[11px] !uppercase !tracking-widest hover:!bg-[#BE123C] transition-colors shadow-lg shadow-rose-900/20" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Network Stats Card */}
+          <div className="bg-white border border-[#E5E7EB] p-10 rounded-[3rem] flex flex-col justify-between shadow-xl relative overflow-hidden group">
+             <div className="relative z-10 space-y-10">
+                <div className="flex items-center gap-5">
+                   <div className="p-5 bg-[#FFF1F2] rounded-[1.5rem] text-[#E11D48] border border-[#FFE4E6]">
+                      <Users size={30} strokeWidth={2.5} />
+                   </div>
+                   <div>
+                      <h3 className="text-2xl font-black uppercase italic tracking-tighter text-[#111827]">Partner<br/><span className="text-[#E11D48]">Stats</span></h3>
+                   </div>
                 </div>
                 
-                <div className="p-5 bg-white/5 rounded-3xl border border-white/10 backdrop-blur-sm">
-                   <div className="flex justify-between items-center mb-3">
-                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.3em]">System Level</span>
-                      <span className="px-2 py-1 bg-emerald-500/20 text-emerald-400 text-[8px] font-black rounded-lg border border-emerald-500/30">+10.00%</span>
-                   </div>
-                   <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                      <div className="h-full bg-gradient-to-r from-[#22c55e] to-[#10b981] w-[15%] shadow-[0_0_10px_rgba(34,197,94,0.5)]" />
-                   </div>
+                <div className="space-y-8">
+                  <div className="bg-[#F9FAFB] p-6 rounded-[2rem] border border-[#F3F4F6]">
+                      <p className="text-[#9CA3AF] text-[10px] font-black uppercase tracking-widest mb-1">Active Network</p>
+                      <h4 className="text-4xl font-black text-[#111827] italic">{user.referredUsers?.length || 0} <span className="text-sm font-bold text-[#6B7280] not-italic uppercase tracking-widest ml-1">Partners</span></h4>
+                  </div>
+                  
+                  <div className="px-2">
+                     <div className="flex justify-between items-center mb-4">
+                        <span className="text-[10px] font-black text-[#111827] uppercase tracking-widest">Commission Rate</span>
+                        <span className="text-[#E11D48] text-xs font-black italic">10.00%</span>
+                     </div>
+                     <div className="w-full h-3 bg-[#F3F4F6] rounded-full overflow-hidden p-1 border border-[#E5E7EB]">
+                        <div className="h-full bg-gradient-to-r from-[#E11D48] to-[#BE123C] w-[15%] rounded-full shadow-[0_0_10px_rgba(225,29,72,0.4)]" />
+                     </div>
+                  </div>
                 </div>
-              </div>
-           </div>
-        </div>
-      </div>
-
-      {/* 3. Operational Partners Table */}
-      <div className="bg-white border border-slate-200 rounded-[2.5rem] overflow-hidden shadow-sm">
-        <div className="p-8 border-b border-slate-100 flex items-center justify-between">
-          <h3 className="font-black uppercase tracking-tighter italic text-slate-900">
-            Referral <span className="text-[#22c55e]">History</span>
-          </h3>
-          <div className="flex items-center gap-2 px-3 py-1 bg-[#22c55e]/10 rounded-full border border-[#22c55e]/20">
-            <ShieldCheck size={12} className="text-[#22c55e]" />
-            <span className="text-[#22c55e] text-[8px] font-black uppercase tracking-widest">Active Users</span>
+             </div>
           </div>
         </div>
-        
-        <div className="p-2 sm:p-8">
-          {user.referredUsers?.length === 0 ? (
-            <div className="text-center py-20 bg-slate-50 rounded-[2rem] border-2 border-dashed border-slate-100">
-              <Users size={40} className="mx-auto text-slate-200 mb-4" />
-              <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.2em]">No referrals detected yet</p>
+
+        {/* 3. Operational Partners Table */}
+        <div className="bg-white border border-[#E5E7EB] rounded-[3rem] overflow-hidden shadow-sm">
+          <div className="p-8 md:p-10 border-b border-[#F3F4F6] flex items-center justify-between">
+            <h3 className="text-xl font-black uppercase tracking-tighter italic text-[#111827]">
+              Network <span className="text-[#E11D48]">Registry</span>
+            </h3>
+            <div className="flex items-center gap-2 px-4 py-2 bg-[#F9FAFB] rounded-xl border border-[#E5E7EB]">
+              <ShieldCheck size={14} className="text-[#E11D48]" />
+              <span className="text-[#111827] text-[10px] font-black uppercase tracking-widest">Verified Entries</span>
             </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="text-left border-b border-slate-100">
-                    <th className="pb-4 px-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">User Email</th>
-                    <th className="pb-4 px-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Join Date</th>
-                    <th className="pb-4 px-4 text-[9px] font-black text-slate-400 uppercase tracking-widest">Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {user.referredUsers.map((ref: any) => (
-                    <tr key={ref.id} className="border-b border-slate-50 last:border-0 hover:bg-slate-50 transition-colors">
-                      <td className="py-4 px-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 bg-[#22c55e]/10 rounded-full flex items-center justify-center text-[#22c55e]">
-                             <Users size={14} />
-                          </div>
-                          <span className="text-xs font-bold text-slate-900">{ref.email?.split('@')[0]}</span>
-                        </div>
-                      </td>
-                      <td className="py-4 px-4 text-[10px] font-medium text-slate-500">
-                         {new Date(ref.createdAt).toLocaleDateString()}
-                      </td>
-                      <td className="py-4 px-4">
-                         <span className="px-2 py-0.5 bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 rounded-full text-[8px] font-black uppercase tracking-widest">
-                           Active
-                         </span>
-                      </td>
+          </div>
+          
+          <div className="p-4 md:p-10">
+            {user.referredUsers?.length === 0 ? (
+              <div className="text-center py-24 bg-[#F9FAFB] rounded-[2.5rem] border-2 border-dashed border-[#E5E7EB]">
+                <div className="bg-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm">
+                  <Users size={28} className="text-[#D1D5DB]" />
+                </div>
+                <p className="text-[#9CA3AF] text-[11px] font-black uppercase tracking-[0.3em]">No active members detected in network</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full border-separate border-spacing-y-3">
+                  <thead>
+                    <tr className="text-left">
+                      <th className="pb-4 px-6 text-[10px] font-black text-[#9CA3AF] uppercase tracking-widest">Partner Identity</th>
+                      <th className="pb-4 px-6 text-[10px] font-black text-[#9CA3AF] uppercase tracking-widest text-center">Protocol Date</th>
+                      <th className="pb-4 px-6 text-[10px] font-black text-[#9CA3AF] uppercase tracking-widest text-right">Status</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
+                  </thead>
+                  <tbody>
+                    {user.referredUsers.map((ref: any) => (
+                      <tr key={ref.id} className="group hover:translate-x-1 transition-transform">
+                        <td className="py-5 px-6 bg-[#F9FAFB] rounded-l-[1.5rem] border-y border-l border-[#F3F4F6]">
+                          <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-[#E11D48] border border-[#E5E7EB] shadow-sm">
+                               <Users size={18} />
+                            </div>
+                            <span className="text-sm font-bold text-[#111827] tracking-tight">{ref.email?.split('@')[0]}</span>
+                          </div>
+                        </td>
+                        <td className="py-5 px-6 bg-[#F9FAFB] border-y border-[#F3F4F6] text-center">
+                           <span className="text-[11px] font-bold text-[#6B7280] uppercase tracking-tight">
+                             {new Date(ref.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                           </span>
+                        </td>
+                        <td className="py-5 px-6 bg-[#F9FAFB] rounded-r-[1.5rem] border-y border-r border-[#F3F4F6] text-right">
+                           <span className="px-4 py-1.5 bg-white text-[#059669] border border-[#D1FAE5] rounded-lg text-[9px] font-black uppercase tracking-widest shadow-sm">
+                             Active Members
+                           </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

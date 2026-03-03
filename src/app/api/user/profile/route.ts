@@ -6,41 +6,55 @@ import { NextResponse } from "next/server";
 export async function GET() {
   try {
     const session = await getServerSession(authOptions);
-    if (!session || !session.user) {
+    if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const userId = (session.user as any).id;
+
+    // 1. User basic info
     const user = await db.user.findUnique({
-      where: { email: session.user.email! },
+      where: { id: userId },
       select: {
         id: true,
-        email: true,
         name: true,
+        email: true,
         balance: true,
-        role: true,
-        walletAddress: true,
-        createdAt: true,
       }
     });
 
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
-
-    const totalDeposited = await db.deposit.aggregate({
-      where: { 
-        userId: user.id,
-        status: { in: ["APPROVED", "ACTIVE"] }
+    // 2. SAHI CALCULATION: Total Real Deposits
+    const totalDepositsAgg = await db.deposit.aggregate({
+      where: {
+        userId: userId,
+        status: "COMPLETED",
+        NOT: {
+          gateway: "PLAN_PURCHASE" // <--- Plan wali amount ko count nahi karega
+        }
       },
-      _sum: { amount: true }
+      _sum: {
+        amount: true
+      }
+    });
+
+    // 3. Total Investment Calculation
+    const totalInvestedAgg = await db.deposit.aggregate({
+      where: {
+        userId: userId,
+        gateway: "PLAN_PURCHASE"
+      },
+      _sum: {
+        amount: true
+      }
     });
 
     return NextResponse.json({
       ...user,
-      totalDeposited: totalDeposited._sum.amount || 0
+      totalDeposited: totalDepositsAgg._sum.amount || 0,
+      totalInvested: totalInvestedAgg._sum.amount || 0
     });
+
   } catch (error) {
-    console.error("Profile API error:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

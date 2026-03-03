@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { Copy, CheckCircle2, Wallet, Zap } from "lucide-react";
+import { Copy, CheckCircle2, Wallet, Zap, UploadCloud } from "lucide-react";
 
 export default function DepositPage() {
   const [selectedMethod, setSelectedMethod] = useState<any>(null);
@@ -11,13 +11,8 @@ export default function DepositPage() {
   const [profile, setProfile] = useState<any>(null);
 
   useEffect(() => {
-    fetch("/api/settings")
-      .then(res => res.json())
-      .then(data => setSettings(data));
-    
-    fetch("/api/user/profile")
-      .then(res => res.json())
-      .then(data => setProfile(data));
+    fetch("/api/settings").then(res => res.json()).then(data => setSettings(data));
+    fetch("/api/user/profile").then(res => res.json()).then(data => setProfile(data));
   }, []);
 
   const methods = settings ? [
@@ -26,83 +21,37 @@ export default function DepositPage() {
       name: 'JazzCash', 
       holder: settings.jazzCashName, 
       account: settings.jazzCashNumber, 
-      type: 'local',
-      logo: (
-        <div className="w-12 h-12 flex items-center justify-center overflow-hidden rounded-xl bg-white p-1">
-          <img src="https://crystalpng.com/wp-content/uploads/2024/12/new-Jazzcash-logo.png" alt="JazzCash" className="w-full h-full object-contain" />
-        </div>
-      )
+      type: 'Local Gateway',
+      logo: "https://crystalpng.com/wp-content/uploads/2024/12/new-Jazzcash-logo.png"
     },
     { 
       id: 'easypaisa', 
       name: 'EasyPaisa', 
       holder: settings.easyPaisaName, 
       account: settings.easyPaisaNumber, 
-      type: 'local',
-      logo: (
-        <div className="w-12 h-12 flex items-center justify-center overflow-hidden rounded-xl bg-white p-1">
-          <img src="https://crystalpng.com/wp-content/uploads/2024/10/Easypaisa-logo.png" alt="EasyPaisa" className="w-full h-full object-contain" />
-        </div>
-      )
+      type: 'Local Gateway',
+      logo: "https://crystalpng.com/wp-content/uploads/2024/10/Easypaisa-logo.png"
     },
     { 
       id: 'usdt', 
       name: 'USDT (TRC20)', 
       address: settings.adminWalletAddress, 
-      type: 'crypto',
-      logo: (
-        <div className="w-12 h-12 flex items-center justify-center overflow-hidden rounded-xl bg-white p-1">
-          <img src="https://cdn.worldvectorlogo.com/logos/tether.svg" alt="USDT" className="w-full h-full object-contain" />
-        </div>
-      )
+      type: 'Crypto Node',
+      logo: "https://cdn.worldvectorlogo.com/logos/tether.svg"
     }
   ] : [];
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
-    alert("Copied to clipboard!");
+    // Custom soft alert could be added here
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        alert("File is too large. Please select an image under 5MB.");
-        return;
-      }
-
       const reader = new FileReader();
       reader.onloadend = () => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          const MAX_WIDTH = 1200;
-          const MAX_HEIGHT = 1200;
-          let width = img.width;
-          let height = img.height;
-
-          if (width > height) {
-            if (width > MAX_WIDTH) {
-              height *= MAX_WIDTH / width;
-              width = MAX_WIDTH;
-            }
-          } else {
-            if (height > MAX_HEIGHT) {
-              width *= MAX_HEIGHT / height;
-              height = MAX_HEIGHT;
-            }
-          }
-
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          ctx?.drawImage(img, 0, 0, width, height);
-          
-          // Compress and set state
-          const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
-          setSlipImage(compressedBase64);
-        };
-        img.src = reader.result as string;
+        setSlipImage(reader.result as string);
       };
       reader.readAsDataURL(file);
     }
@@ -110,290 +59,189 @@ export default function DepositPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!slipImage) {
-      alert("Please upload a payment slip image as proof of your deposit.");
-      setLoading(false);
-      return;
-    }
-
-    // API call yahan aye gi jo Deposit request create karegi
+    if (!slipImage) return alert("Please upload slip");
+    setLoading(true);
     try {
       const res = await fetch("/api/deposit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-          amount: parseFloat(amount), 
-          gateway: selectedMethod.name, 
-          slipImage: slipImage 
-        }),
+        body: JSON.stringify({ amount: parseFloat(amount), gateway: selectedMethod.name, slipImage })
       });
       if(res.ok) {
-        alert("Request Sent! Wait for Admin Approval.");
+        alert("Request Sent!");
+        setSelectedMethod(null);
         setAmount("");
         setSlipImage("");
-        setSelectedMethod(null);
-      } else {
-        const error = await res.json();
-        alert(error.error || "Something went wrong");
       }
-    } catch (err) {
-      alert("Failed to submit deposit request");
-    } finally {
-      setLoading(false);
-    }
+    } catch (err) { console.error(err); } 
+    finally { setLoading(false); }
   };
 
-  // Safe Currency Formatter
-  const formatPKR = (val: number) => {
-    return val.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  };
+  const formatPKR = (val: number) => val.toLocaleString('en-PK', { minimumFractionDigits: 2 });
 
   return (
-    <div className="p-4 md:p-10 pt-24 lg:pt-10 max-w-4xl mx-auto space-y-8 text-slate-900">
-      <div className="lg:hidden">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="bg-[#22c55e] h-8 w-1.5 rounded-full shadow-[0_0_15px_rgba(34,197,94,0.3)]" />
-          <h1 className="text-3xl font-black uppercase tracking-tighter italic text-slate-900 leading-none">
-            Deposit <span className="text-[#22c55e]">Funds</span>
-          </h1>
+    <div className="bg-[#F3F4F6] min-h-screen p-5 md:p-10 pt-24 lg:pt-8 font-sans text-[#1F2937]">
+      <div className="max-w-5xl mx-auto space-y-10">
+        
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div>
+            <h1 className="text-3xl font-black tracking-tight text-[#111827]">
+              Deposit <span className="text-[#E11D48]">Funds</span>
+            </h1>
+            <p className="text-[#6B7280] text-sm font-medium mt-1">Refill your balance to activate new plans.</p>
+          </div>
+          <div className="bg-white px-5 py-2 rounded-2xl shadow-sm border border-[#E5E7EB] flex items-center gap-2">
+            <div className="w-2 h-2 bg-[#E11D48] rounded-full animate-pulse" />
+            <span className="text-[10px] font-black uppercase tracking-widest text-[#4B5563]">Secure Gateway</span>
+          </div>
         </div>
-        <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.4em] ml-5">
-          Secure Deposit Panel • Gateway: <span className="text-[#22c55e] italic">Verified</span>
-        </p>
-      </div>
 
-      {/* 0. User Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-white border border-slate-200 p-6 rounded-[2rem] flex items-center justify-between shadow-sm">
-           <div>
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total Deposited Amount</p>
-              <h3 className="text-3xl font-black text-slate-900 tracking-tighter italic">
-                Rs. {profile ? formatPKR(profile.totalDeposited) : "0.00"}
-              </h3>
-           </div>
-           <div className="bg-[#22c55e]/10 p-3 rounded-2xl border border-[#22c55e]/10">
-              <Zap className="text-[#22c55e]" size={24} />
-           </div>
-        </div>
-        <div className="bg-white border border-slate-200 p-6 rounded-[2rem] flex items-center justify-between shadow-sm">
-           <div>
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Available Balance</p>
-              <h3 className="text-3xl font-black text-[#22c55e] tracking-tighter italic">
-                Rs. {profile ? formatPKR(profile.balance) : "0.00"}
-              </h3>
-           </div>
-           <div className="bg-[#22c55e]/10 p-3 rounded-2xl border border-[#22c55e]/10">
-              <Wallet className="text-[#22c55e]" size={24} />
-           </div>
-        </div>
-      </div>
-
-      {/* 1. Select Method */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {!settings ? (
-          [1, 2, 3].map(i => (
-            <div key={i} className="h-24 bg-zinc-900/50 border border-zinc-800 rounded-2xl animate-pulse" />
-          ))
-        ) : (
-          methods.map((m) => (
-            <div 
-              key={m.id} 
-              onClick={() => setSelectedMethod(m)}
-              className={`p-6 rounded-[2rem] border cursor-pointer transition-all flex flex-col items-center text-center gap-4 ${selectedMethod?.id === m.id ? 'border-[#22c55e] bg-[#22c55e]/10 scale-105 shadow-xl shadow-[#22c55e]/10' : 'border-slate-200 bg-white hover:border-slate-300'}`}
-            >
-              {m.logo}
-              <div>
-                <p className="font-bold uppercase text-[8px] tracking-[0.3em] text-zinc-500 mb-1">{m.type}</p>
-                <h3 className="text-sm font-black italic tracking-tighter">{m.name}</h3>
-              </div>
-
-              {/* Mobile-only Deployment Console - Appears immediately below the selected method on small screens */}
-              {selectedMethod?.id === m.id && (
-                <div className="col-span-full space-y-8 mt-4 lg:hidden w-full">
-                  <div className="bg-white border border-[#22c55e]/30 p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden">
-                    <div className="absolute -top-10 -right-10 opacity-[0.03] scale-150 rotate-12 pointer-events-none">
-                      <selectedMethod.logo.type {...selectedMethod.logo.props} className="w-64 h-64" />
-                    </div>
-
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 relative z-10">
-                      {/* Account Intel */}
-                      <div className="space-y-6">
-                        <div>
-                          <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-[0.3em] mb-4 italic">Payment Details</h4>
-                          <div className="bg-slate-50 border border-slate-100 p-6 rounded-2xl flex justify-between items-center group/addr">
-                            <div>
-                              <p className="text-xl font-mono text-[#22c55e] break-all leading-tight">{selectedMethod.account || selectedMethod.address}</p>
-                              {selectedMethod.holder && <p className="text-[10px] font-black uppercase text-slate-500 mt-2">Account Name: {selectedMethod.holder}</p>}
-                            </div>
-                            <button 
-                              onClick={() => handleCopy(selectedMethod.account || selectedMethod.address)}
-                              className="p-3 bg-white border border-slate-200 rounded-xl hover:bg-[#22c55e] hover:text-white transition-all active:scale-90 shadow-sm"
-                            >
-                              <Copy size={18} />
-                            </button>
-                          </div>
-                        </div>
-                        
-                        <div className="p-4 bg-[#22c55e]/5 border border-[#22c55e]/10 rounded-2xl">
-                          <p className="text-[9px] font-bold text-[#22c55e] uppercase tracking-widest leading-relaxed">
-                            Transfer the exact amount to the account shown above, then upload your receipt below to verify your deposit.
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Deployment Form */}
-                      <form onSubmit={handleSubmit} className="space-y-6">
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Amount to Deposit (Rs.)</label>
-                          <input 
-                            type="number" 
-                            placeholder="0.00" 
-                            className="w-full bg-slate-50 border border-slate-100 p-5 rounded-2xl outline-none focus:border-[#22c55e] text-3xl font-black text-slate-900 transition-all placeholder:text-slate-200"
-                            onChange={(e) => setAmount(e.target.value)} 
-                            value={amount}
-                            required
-                          />
-                        </div>
-
-                        <div className="space-y-2">
-                          <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Digital Receipt / Cash Slip</label>
-                          <input 
-                            type="file" 
-                            accept="image/*"
-                            onChange={handleFileChange}
-                            className="hidden"
-                            id="slip-upload"
-                            required
-                          />
-                          <label 
-                            htmlFor="slip-upload"
-                            className="w-full bg-slate-50 border border-slate-100 p-5 rounded-2xl flex items-center justify-between cursor-pointer hover:border-[#22c55e]/50 transition-all group"
-                          >
-                            {slipImage ? (
-                              <div className="flex items-center gap-3">
-                                <CheckCircle2 size={20} className="text-emerald-500" />
-                                <span className="text-[10px] font-black uppercase text-slate-600">Proof Attached</span>
-                              </div>
-                            ) : (
-                              <div className="flex items-center gap-3">
-                                <Zap size={20} className="text-slate-300 group-hover:text-[#22c55e] transition-colors" />
-                                <span className="text-[10px] font-black uppercase text-slate-400 group-hover:text-slate-600">Browse Slip</span>
-                              </div>
-                            )}
-                          
-                            {slipImage && (
-                              <img src={slipImage} alt="Preview" className="w-10 h-10 object-cover rounded-lg border border-zinc-800 shadow-xl" />
-                            )}
-                          </label>
-                        </div>
-
-                        <button 
-                          disabled={loading}
-                          className="w-full bg-[#22c55e] py-5 rounded-2xl font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 text-white hover:bg-[#16a34a] transition shadow-2xl shadow-[#22c55e]/40 active:scale-[0.98] text-[11px]"
-                        >
-                          {loading ? "Processing..." : <><Zap size={18} /> Deposit Now</>}
-                        </button>
-                      </form>
-                    </div>
-                  </div>
-                </div>
-              )}
+        {/* User Stats Card */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-white p-8 rounded-[2.5rem] shadow-[0_10px_40px_rgba(0,0,0,0.03)] border border-white flex justify-between items-center">
+            <div>
+              <p className="text-[10px] font-black text-[#9CA3AF] uppercase tracking-widest mb-1">Available Balance</p>
+              <h3 className="text-3xl font-black text-[#111827]">Rs. {profile ? formatPKR(profile.balance) : "0.00"}</h3>
             </div>
-          ))
-        )}
-      </div>
-
-      {/* Laptop-only Deployment Console - Appears at the bottom for large screens */}
-      {selectedMethod && (
-        <div className="hidden lg:block space-y-8 animate-in fade-in slide-in-from-bottom-4">
-          <div className="bg-white border border-[#22c55e]/30 p-8 rounded-[2.5rem] space-y-8 shadow-2xl relative overflow-hidden">
-            <div className="absolute -top-10 -right-10 opacity-[0.03] scale-150 rotate-12 pointer-events-none">
-              <selectedMethod.logo.type {...selectedMethod.logo.props} className="w-64 h-64" />
+            <div className="bg-[#FFF1F2] p-4 rounded-2xl text-[#E11D48]">
+              <Wallet size={24} />
             </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 relative z-10">
-              {/* Account Intel */}
-              <div className="space-y-6">
-                <div>
-                  <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-[0.3em] mb-4 italic">Payment Details</h4>
-                  <div className="bg-slate-50 border border-slate-100 p-6 rounded-2xl flex justify-between items-center group/addr">
-                    <div>
-                      <p className="text-xl font-mono text-[#22c55e] break-all leading-tight">{selectedMethod.account || selectedMethod.address}</p>
-                      {selectedMethod.holder && <p className="text-[10px] font-black uppercase text-slate-500 mt-2">Account Name: {selectedMethod.holder}</p>}
-                    </div>
-                    <button 
-                      onClick={() => handleCopy(selectedMethod.account || selectedMethod.address)}
-                      className="p-3 bg-white border border-slate-200 rounded-xl hover:bg-[#22c55e] hover:text-white transition-all active:scale-90 shadow-sm"
-                    >
-                      <Copy size={18} />
-                    </button>
-                  </div>
-                </div>
-                
-                <div className="p-4 bg-[#22c55e]/5 border border-[#22c55e]/10 rounded-2xl">
-                  <p className="text-[9px] font-bold text-[#22c55e] uppercase tracking-widest leading-relaxed">
-                    Transfer the exact amount to the account shown above, then upload your receipt below to verify your deposit.
-                  </p>
-                </div>
-              </div>
-
-              {/* Deployment Form */}
-              <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Amount to Deposit (Rs.)</label>
-                  <input 
-                    type="number" 
-                    placeholder="0.00" 
-                    className="w-full bg-slate-50 border border-slate-100 p-5 rounded-2xl outline-none focus:border-[#22c55e] text-3xl font-black text-slate-900 transition-all placeholder:text-slate-200"
-                    onChange={(e) => setAmount(e.target.value)} 
-                    value={amount}
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Digital Receipt / Cash Slip</label>
-                  <input 
-                    type="file" 
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    className="hidden"
-                    id="slip-upload"
-                    required
-                  />
-                  <label 
-                    htmlFor="slip-upload"
-                    className="w-full bg-slate-50 border border-slate-100 p-5 rounded-2xl flex items-center justify-between cursor-pointer hover:border-[#22c55e]/50 transition-all group"
-                  >
-                    {slipImage ? (
-                      <div className="flex items-center gap-3">
-                        <CheckCircle2 size={20} className="text-emerald-500" />
-                        <span className="text-[10px] font-black uppercase text-slate-600">Proof Attached</span>
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-3">
-                        <Zap size={20} className="text-slate-300 group-hover:text-[#22c55e] transition-colors" />
-                        <span className="text-[10px] font-black uppercase text-slate-400 group-hover:text-slate-600">Browse Slip</span>
-                      </div>
-                    )}
-                  
-                    {slipImage && (
-                      <img src={slipImage} alt="Preview" className="w-10 h-10 object-cover rounded-lg border border-zinc-800 shadow-xl" />
-                    )}
-                  </label>
-                </div>
-
-                <button 
-                  disabled={loading}
-                  className="w-full bg-[#22c55e] py-5 rounded-2xl font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 text-white hover:bg-[#16a34a] transition shadow-2xl shadow-[#22c55e]/40 active:scale-[0.98] text-[11px]"
-                >
-                  {loading ? "Processing..." : <><Zap size={18} /> Deposit Now</>}
-                </button>
-              </form>
+          </div>
+          <div className="bg-[#111827] p-8 rounded-[2.5rem] shadow-xl flex justify-between items-center">
+            <div>
+              <p className="text-[10px] font-black text-white/50 uppercase tracking-widest mb-1">Total Funded</p>
+              <h3 className="text-3xl font-black text-white italic font-serif">Rs. {profile ? formatPKR(profile.totalDeposited) : "0.00"}</h3>
+            </div>
+            <div className="bg-white/10 p-4 rounded-2xl text-[#E11D48]">
+              <Zap size={24} />
             </div>
           </div>
         </div>
-      )}
+
+        {/* Method Selection */}
+        <div className="space-y-6">
+          <h2 className="text-sm font-black text-[#111827] uppercase tracking-widest ml-2 italic">1. Select Gateway</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {methods.map((m) => (
+              <div 
+                key={m.id} 
+                onClick={() => setSelectedMethod(m)}
+                className={`group bg-white p-8 rounded-[2.5rem] border-2 cursor-pointer transition-all duration-300 flex flex-col items-center text-center gap-4 ${selectedMethod?.id === m.id ? 'border-[#E11D48] shadow-2xl shadow-rose-100' : 'border-transparent shadow-sm hover:shadow-md'}`}
+              >
+                <div className="w-16 h-16 rounded-2xl overflow-hidden bg-[#F9FAFB] p-2 border border-[#F3F4F6]">
+                  <img src={m.logo} alt={m.name} className="w-full h-full object-contain" />
+                </div>
+                <div>
+                  <p className="text-[9px] font-black text-[#9CA3AF] uppercase tracking-widest mb-1">{m.type}</p>
+                  <h3 className="text-lg font-black text-[#111827]">{m.name}</h3>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Form Console - Only shows when method selected */}
+        {selectedMethod && (
+          <div className="animate-in fade-in slide-in-from-bottom-6 duration-500">
+            <div className="bg-white rounded-[3rem] shadow-[0_30px_60px_rgba(0,0,0,0.06)] border border-[#F3F4F6] overflow-hidden">
+              <div className="grid grid-cols-1 lg:grid-cols-2">
+                
+                {/* Left Side: Account Info */}
+                <div className="p-10 lg:p-14 bg-[#F9FAFB] border-r border-[#F3F4F6] space-y-8">
+                  <div>
+                    <span className="bg-[#E11D48] text-white text-[9px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest">Target Account</span>
+                    <h3 className="text-3xl font-black text-[#111827] mt-4 leading-tight">Transfer Funds To This Address</h3>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="bg-white p-6 rounded-3xl border border-[#E5E7EB] flex justify-between items-center group">
+                      <div className="truncate pr-4">
+                        <p className="text-[10px] font-black text-[#9CA3AF] uppercase tracking-widest mb-1">Account / Address</p>
+                        <p className="text-xl font-mono font-bold text-[#111827] break-all">{selectedMethod.account || selectedMethod.address}</p>
+                      </div>
+                      <button 
+                        onClick={() => handleCopy(selectedMethod.account || selectedMethod.address)}
+                        className="bg-[#111827] text-white p-4 rounded-2xl hover:bg-[#E11D48] transition-colors shadow-lg active:scale-90"
+                      >
+                        <Copy size={20} />
+                      </button>
+                    </div>
+
+                    {selectedMethod.holder && (
+                      <div className="bg-white p-6 rounded-3xl border border-[#E5E7EB]">
+                        <p className="text-[10px] font-black text-[#9CA3AF] uppercase tracking-widest mb-1">Account Holder Name</p>
+                        <p className="text-lg font-black text-[#111827] italic uppercase tracking-tight">{selectedMethod.holder}</p>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="bg-rose-50 p-6 rounded-[2rem] border border-rose-100 flex gap-4">
+                    <div className="bg-white h-10 w-10 shrink-0 rounded-full flex items-center justify-center text-[#E11D48] shadow-sm">
+                      <Zap size={18} />
+                    </div>
+                    <p className="text-xs font-bold text-[#E11D48]/80 leading-relaxed">
+                      Please ensure the transfer amount matches your request. Verification takes 5-30 minutes.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Right Side: Form */}
+                <div className="p-10 lg:p-14 space-y-8">
+                  <form onSubmit={handleSubmit} className="space-y-8">
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black text-[#9CA3AF] uppercase tracking-[0.2em] ml-2">Exact Deposit Amount</label>
+                      <div className="relative">
+                        <span className="absolute left-6 top-1/2 -translate-y-1/2 font-black text-[#111827]">Rs.</span>
+                        <input 
+                          type="number" 
+                          value={amount}
+                          onChange={(e) => setAmount(e.target.value)}
+                          className="w-full bg-[#F9FAFB] border-2 border-transparent focus:border-[#E11D48] focus:bg-white rounded-2xl py-6 pl-14 pr-6 text-[#111827] outline-none font-black text-2xl transition-all"
+                          placeholder="0.00"
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black text-[#9CA3AF] uppercase tracking-[0.2em] ml-2">Transaction Screenshot</label>
+                      <input type="file" id="slip" className="hidden" onChange={handleFileChange} required />
+                      <label 
+                        htmlFor="slip"
+                        className="w-full bg-[#F9FAFB] border-2 border-dashed border-[#E5E7EB] hover:border-[#E11D48] py-8 rounded-3xl flex flex-col items-center justify-center gap-3 cursor-pointer transition-all group"
+                      >
+                        {slipImage ? (
+                          <div className="flex flex-col items-center gap-2">
+                             <CheckCircle2 size={40} className="text-[#E11D48]" />
+                             <span className="text-[10px] font-black uppercase text-[#111827]">Slip Attached Successfully</span>
+                          </div>
+                        ) : (
+                          <>
+                            <div className="bg-white p-4 rounded-2xl shadow-sm group-hover:scale-110 transition-transform">
+                              <UploadCloud size={30} className="text-[#9CA3AF]" />
+                            </div>
+                            <span className="text-[10px] font-black uppercase text-[#9CA3AF] tracking-widest">Upload Receipt</span>
+                          </>
+                        )}
+                      </label>
+                    </div>
+
+                    <button 
+                      disabled={loading}
+                      className="w-full bg-[#111827] py-6 rounded-2xl font-black text-white uppercase tracking-[0.2em] text-xs hover:bg-black transition-all shadow-xl shadow-gray-200 flex items-center justify-center gap-3 disabled:opacity-50"
+                    >
+                      {loading ? <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" /> : "Confirm Deposit"}
+                    </button>
+                  </form>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        )}
+
+      </div>
     </div>
   );
-} 
+}

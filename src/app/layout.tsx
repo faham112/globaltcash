@@ -1,6 +1,8 @@
-import type { Metadata } from "next";
+"use client"; // Ye line zaroori hai kyunke hum usePathname use kar rahe hain
+
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { usePathname } from "next/navigation"; // Path check karne ke liye
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -11,15 +13,6 @@ const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
 });
-
-export const metadata: Metadata = {
-  title: "Global Trust Cash | High-Yield Asset Terminal",
-  description:
-    "Secure, fast, and transparent high-yield investment platform for digital assets.",
-  icons: {
-    icon: "/favicon.svg",
-  },
-};
 
 import AuthProvider from "@/components/SessionProvider";
 import TonProvider from "@/components/TonProvider";
@@ -32,6 +25,12 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const pathname = usePathname();
+
+  // Check karo ke kya user dashboard area mein hai
+  // Agar path "/dashboard" ya "/admin" se shuru hota hai to true hoga
+  const isDashboard = pathname?.startsWith("/dashboard") || pathname?.startsWith("/admin");
+
   return (
     <html lang="en" className="dark">
       <body
@@ -39,12 +38,17 @@ export default function RootLayout({
       >
         <AuthProvider>
           <TonProvider>
-            <Navbar />
+            {/* AGAR DASHBOARD NAHI HAI, TABHI NAVBAR DIKHAO */}
+            {!isDashboard && <Navbar />}
+            
             <Toaster position="top-center" richColors theme="dark" />
-            <main className="min-h-[70vh]">
+            
+            <main className={!isDashboard ? "min-h-[70vh]" : ""}>
               {children}
             </main>
-            <Footer />
+
+            {/* AGAR DASHBOARD NAHI HAI, TABHI FOOTER DIKHAO */}
+            {!isDashboard && <Footer />}
           </TonProvider>
         </AuthProvider>
       </body>

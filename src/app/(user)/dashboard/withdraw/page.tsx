@@ -1,12 +1,15 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { ArrowUpLeft, ShieldCheck, Coins, Loader2, Wallet, CheckCircle2 } from "lucide-react";
+import { ArrowUpLeft, ShieldCheck, Coins, Loader2, Wallet, Info, Landmark, User, Hash } from "lucide-react";
 import { useTonAddress } from "@tonconnect/ui-react";
 
 export default function WithdrawPage() {
   const tonAddress = useTonAddress();
+  const [method, setMethod] = useState("local"); // 'local' or 'crypto'
   const [amount, setAmount] = useState("");
-  const [address, setAddress] = useState("");
+  const [address, setAddress] = useState(""); 
+  const [accountName, setAccountName] = useState(""); 
+  const [provider, setProvider] = useState("JazzCash"); 
   const [loading, setLoading] = useState(true);
   const [executing, setExecuting] = useState(false);
   const [userData, setUserData] = useState<any>(null);
@@ -17,12 +20,10 @@ export default function WithdrawPage() {
 
   const fetchUserData = async () => {
     try {
-      const res = await fetch("/api/user/profile"); // I'll create this API
+      const res = await fetch("/api/user/profile");
       const data = await res.json();
       setUserData(data);
-      if (data.walletAddress && !address) {
-        setAddress(data.walletAddress);
-      }
+      if (data.walletAddress && !address) setAddress(data.walletAddress);
     } catch (err) {
       console.error("Failed to fetch user data", err);
     } finally {
@@ -31,7 +32,8 @@ export default function WithdrawPage() {
   };
 
   const handleWithdraw = async () => {
-    if (!amount || !address) return alert("Please enter amount and address");
+    if (!amount || !address) return alert("Please fill all details");
+    if (method === "local" && !accountName) return alert("Please enter Account Holder Name");
     if (parseFloat(amount) > (userData?.balance || 0)) return alert("Insufficient balance");
     
     setExecuting(true);
@@ -39,142 +41,177 @@ export default function WithdrawPage() {
       const res = await fetch("/api/withdrawals", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: parseFloat(amount), address }),
+        body: JSON.stringify({ 
+          amount: parseFloat(amount), 
+          method,
+          provider: method === "local" ? provider : "Crypto",
+          accountName: method === "local" ? accountName : "Crypto Wallet",
+          address 
+        }),
       });
       if (res.ok) {
-        alert("Withdrawal request submitted. Processing...");
-        setAmount("");
+        alert("Withdrawal request submitted.");
+        setAmount(""); setAddress(""); setAccountName("");
         fetchUserData();
       }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setExecuting(false);
-    }
-  };
-
-  const fillConnectedWallet = () => {
-    if (tonAddress) {
-      setAddress(tonAddress);
-    }
+    } catch (err) { console.error(err); } finally { setExecuting(false); }
   };
 
   if (loading) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center">
-        <Loader2 className="animate-spin text-[#22c55e]" size={40} />
+      <div className="min-h-screen bg-[#F3F4F6] flex items-center justify-center">
+        <Loader2 className="animate-spin text-[#E11D48]" size={40} />
       </div>
     );
   }
 
   return (
-    <div className="p-4 md:p-8 pt-24 lg:pt-10 max-w-6xl mx-auto">
-      <div className="mb-10 text-slate-900 lg:hidden">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="bg-[#22c55e] h-8 w-1.5 rounded-full shadow-[0_0_15px_rgba(34,197,94,0.3)]" />
-          <h1 className="text-3xl font-black uppercase tracking-tighter italic leading-none text-slate-900">
-            Withdraw <span className="text-[#22c55e]">Funds</span>
-          </h1>
+    <div className="bg-[#F3F4F6] min-h-screen p-5 md:p-10 pt-24 lg:pt-10 font-sans text-[#1F2937]">
+      <div className="max-w-6xl mx-auto space-y-10">
+        
+        {/* Header with Switch */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div>
+            <h1 className="text-3xl font-black tracking-tight text-[#111827]">
+              Payout <span className="text-[#E11D48]">Request</span>
+            </h1>
+            <p className="text-[#6B7280] text-sm font-medium mt-1">
+              Currently withdrawing via <span className="text-[#E11D48] font-bold uppercase italic">{method}</span>
+            </p>
+          </div>
+          
+          <div className="flex bg-white p-1.5 rounded-2xl shadow-sm border border-[#E5E7EB]">
+            <button 
+              onClick={() => setMethod("local")}
+              className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${method === "local" ? "bg-[#E11D48] text-white shadow-md shadow-rose-200" : "text-[#9CA3AF]"}`}
+            >
+              Local Transfer
+            </button>
+            <button 
+              onClick={() => setMethod("crypto")}
+              className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase transition-all ${method === "crypto" ? "bg-[#E11D48] text-white shadow-md shadow-rose-200" : "text-[#9CA3AF]"}`}
+            >
+              USDT
+            </button>
+          </div>
         </div>
-        <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.4em] ml-5">
-           Request Earnings Withdrawal • Status: <span className="text-emerald-500 italic uppercase">Active</span>
-        </p>
-      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white border border-slate-200 p-8 rounded-[2.5rem] shadow-sm relative overflow-hidden">
-            <div className="absolute -top-24 -right-24 w-64 h-64 bg-[#22c55e]/5 rounded-full blur-[80px]" />
-            
-            <div className="flex items-center justify-between mb-10 relative z-10">
-               <div className="flex items-center gap-4">
-                  <div className="bg-emerald-50 p-3 rounded-2xl border border-emerald-100">
-                     <Coins className="text-emerald-500" size={24} />
-                  </div>
-                  <div>
-                     <p className="text-zinc-500 text-[10px] font-black uppercase tracking-widest">Available Balance</p>
-                     <h3 className="text-4xl font-black text-slate-900 tracking-tighter">Rs. {userData?.balance?.toFixed(2) || "0.00"}</h3>
-                  </div>
-               </div>
-               
-               {tonAddress && (
-                 <button 
-                  onClick={fillConnectedWallet}
-                  className="bg-[#22c55e]/50 hover:bg-[#22c55e]/100 border border-[#22c55e]/100 px-4 py-2 rounded-xl flex items-center gap-2 transition-all group"
-                 >
-                    <Wallet size={14} className="text-[#22c55e]" />
-                    <span className="text-[10px] font-black uppercase tracking-widest text-[#22c55e] group-hover:text-[#16a34a]">Use TON Wallet</span>
-                 </button>
-               )}
-            </div>
-
-            <div className="space-y-6 text-slate-900 relative z-10">
-              <div className="space-y-2">
-                <div className="flex justify-between items-center ml-1">
-                   <label className="text-[10px] font-black uppercase text-slate-400">Withdrawal Amount (Rs.)</label>
-                   <button onClick={() => setAmount(userData?.balance.toString())} className="text-[9px] font-black text-red-500 uppercase tracking-widest hover:underline">Max Available</button>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2">
+            <div className="bg-white p-8 md:p-12 rounded-[3rem] shadow-[0_20px_50px_rgba(0,0,0,0.04)] border border-white relative">
+              
+              {/* Balance Card */}
+              <div className="flex items-center gap-5 mb-12 bg-slate-50 p-6 rounded-[2rem] border border-slate-100">
+                <div className="bg-white p-4 rounded-2xl text-[#E11D48] shadow-sm">
+                  <Coins size={28} />
                 </div>
-                <input 
-                  type="number" 
-                  value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
-                  placeholder="Min Rs. 10.00"
-                  className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-5 px-6 text-xl font-black focus:outline-none focus:border-red-500/50 transition-all placeholder:text-slate-200 text-slate-900"
-                />
+                <div>
+                  <p className="text-[10px] font-black text-[#9CA3AF] uppercase tracking-[0.2em]">Balance Available</p>
+                  <h3 className="text-3xl font-black text-[#111827]">Rs. {userData?.balance?.toLocaleString() || "0.00"}</h3>
+                </div>
               </div>
 
-              <div className="space-y-2">
-                <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Receiving Destination Hash (BEP20 / TON)</label>
-                <div className="relative group">
-                  <input 
-                    type="text" 
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    placeholder="Paste 0x... or TON address"
-                    className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 px-6 text-sm focus:outline-none focus:border-[#22c55e] transition-all font-mono text-slate-600"
-                  />
-                  {address === tonAddress && tonAddress && (
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2 text-[#22c55e]">
-                       <CheckCircle2 size={16} />
-                       <span className="text-[8px] font-black uppercase">Telegram Link</span>
+              <div className="space-y-8">
+                
+                {/* Condition: Show Name and Provider ONLY if Method is LOCAL */}
+                {method === "local" && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 animate-in fade-in slide-in-from-top-4 duration-300">
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black uppercase text-[#9CA3AF] tracking-widest px-2">Provider</label>
+                      <select 
+                        value={provider}
+                        onChange={(e) => setProvider(e.target.value)}
+                        className="w-full bg-[#F9FAFB] border-2 border-transparent focus:border-[#E11D48] rounded-[1.2rem] py-4 px-6 font-bold text-[#111827] outline-none transition-all"
+                      >
+                        <option>JazzCash</option>
+                        <option>EasyPaisa</option>
+                        <option>Bank Transfer</option>
+                      </select>
                     </div>
-                  )}
+
+                    <div className="space-y-3">
+                      <label className="text-[10px] font-black uppercase text-[#9CA3AF] tracking-widest px-2">Account Holder Name</label>
+                      <div className="relative">
+                        <User className="absolute left-5 top-1/2 -translate-y-1/2 text-[#9CA3AF]" size={18} />
+                        <input 
+                          type="text" 
+                          value={accountName}
+                          onChange={(e) => setAccountName(e.target.value)}
+                          placeholder="Beneficiary Name"
+                          className="w-full bg-[#F9FAFB] border-2 border-transparent focus:border-[#E11D48] rounded-[1.2rem] py-4 pl-12 pr-6 font-bold text-[#111827] outline-none"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Always Show: Address (Changes Label based on method) */}
+                <div className="space-y-3 animate-in fade-in duration-500">
+                  <label className="text-[10px] font-black uppercase text-[#9CA3AF] tracking-widest px-2">
+                    {method === "local" ? "Account / Mobile Number" : "USDT / TON Wallet Address"}
+                  </label>
+                  <div className="relative">
+                    <Hash className="absolute left-5 top-1/2 -translate-y-1/2 text-[#9CA3AF]" size={18} />
+                    <input 
+                      type="text" 
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                      placeholder={method === "local" ? "03XXXXXXXXX" : "0x... or TON Hash"}
+                      className="w-full bg-[#F9FAFB] border-2 border-transparent focus:border-[#E11D48] rounded-[1.2rem] py-5 pl-12 pr-6 font-mono text-sm text-[#4B5563] outline-none transition-all"
+                    />
+                  </div>
                 </div>
+
+                {/* Always Show: Amount */}
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center px-2">
+                    <label className="text-[10px] font-black uppercase text-[#9CA3AF] tracking-widest">Withdrawal Amount (Rs.)</label>
+                    <button 
+                      onClick={() => setAmount(userData?.balance.toString())} 
+                      className="text-[10px] font-black text-[#E11D48] hover:underline"
+                    >
+                      Use Max
+                    </button>
+                  </div>
+                  <div className="relative">
+                    <span className="absolute left-6 top-1/2 -translate-y-1/2 font-black text-[#111827] text-xl">Rs.</span>
+                    <input 
+                      type="number" 
+                      value={amount}
+                      onChange={(e) => setAmount(e.target.value)}
+                      placeholder="0.00"
+                      className="w-full bg-[#F9FAFB] border-2 border-transparent focus:border-[#E11D48] focus:bg-white rounded-[2rem] py-7 pl-16 pr-8 text-2xl font-black text-[#111827] transition-all outline-none"
+                    />
+                  </div>
+                </div>
+
+                <button 
+                  onClick={handleWithdraw}
+                  disabled={executing}
+                  className="w-full bg-[#111827] hover:bg-black disabled:opacity-50 text-white py-6 rounded-[2rem] font-black uppercase tracking-[0.3em] text-[11px] transition-all flex items-center justify-center gap-3 shadow-xl active:scale-[0.98] mt-4"
+                >
+                  {executing ? <Loader2 className="animate-spin" size={20} /> : <><ArrowUpLeft size={20} strokeWidth={3} /> Request Payout</>}
+                </button>
               </div>
-
-              <button 
-                onClick={handleWithdraw}
-                disabled={executing}
-                className="w-full bg-slate-100 text-slate-900 hover:bg-slate-200 disabled:opacity-50 py-5 rounded-2xl font-black uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 shadow-sm active:scale-95 text-[11px] mt-4"
-              >
-                {executing ? <Loader2 className="animate-spin" size={18} /> : <ArrowUpLeft size={18} />}
-                {executing ? "Processing..." : "Withdraw Now"}
-              </button>
             </div>
           </div>
-        </div>
 
-        <div className="space-y-6">
-          <div className="bg-red-50 border border-red-100 p-8 rounded-[2.5rem]">
-            <div className="bg-red-100 w-12 h-12 rounded-xl flex items-center justify-center mb-6">
-              <ShieldCheck className="text-red-500" size={24} />
+          {/* Rules Sidebar */}
+          <div className="space-y-6">
+            <div className="bg-[#111827] p-10 rounded-[3rem] text-white relative overflow-hidden shadow-2xl">
+              <div className="absolute -bottom-10 -right-10 opacity-10 rotate-12"><ShieldCheck size={160} /></div>
+              <div className="bg-[#E11D48] w-12 h-12 rounded-xl flex items-center justify-center mb-6 shadow-lg shadow-rose-900/20">
+                <ShieldCheck className="text-white" size={24} />
+              </div>
+              <h4 className="text-xl font-black uppercase italic mb-8 tracking-tighter">Security <br/> <span className="text-[#E11D48]">Guidelines</span></h4>
+              <ul className="space-y-6 relative z-10 text-[11px] font-bold text-white/60 uppercase tracking-widest leading-relaxed">
+                <li className="flex gap-4"><div className="w-1.5 h-1.5 bg-[#E11D48] rounded-full mt-1.5 shrink-0" /> Local: 2 - 24 Hours</li>
+                <li className="flex gap-4"><div className="w-1.5 h-1.5 bg-[#E11D48] rounded-full mt-1.5 shrink-0" /> Crypto: 15 - 60 Minutes</li>
+                <li className="flex gap-4"><div className="w-1.5 h-1.5 bg-[#E11D48] rounded-full mt-1.5 shrink-0" /> Fee: 2.5% Maintenance</li>
+              </ul>
             </div>
-            <h4 className="text-4xl font-black uppercase italic mb-6 text-slate-900">Rules</h4>
-            <ul className="space-y-5">
-              <li className="flex gap-3 items-start">
-                <div className="w-1.5 h-1.5 bg-red-500 rounded-full mt-1.5 shrink-0" />
-                <p className="text-[10px] font-bold text-slate-500 uppercase leading-relaxed tracking-wider italic">Processing time: 02 - 24 hours.</p>
-              </li>
-              <li className="flex gap-3 items-start">
-                <div className="w-1.5 h-1.5 bg-red-500 rounded-full mt-1.5 shrink-0" />
-                <p className="text-[10px] font-bold text-slate-500 uppercase leading-relaxed tracking-wider italic">Withdrawal fee: 2.5% system tax.</p>
-              </li>
-              <li className="flex gap-3 items-start">
-                <div className="w-1.5 h-1.5 bg-red-500 rounded-full mt-1.5 shrink-0" />
-                <p className="text-[10px] font-bold text-slate-500 uppercase leading-relaxed tracking-wider italic">Ensure destination hash compatibility.</p>
-              </li>
-            </ul>
           </div>
+
         </div>
       </div>
     </div>

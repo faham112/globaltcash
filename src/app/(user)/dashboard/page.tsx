@@ -7,7 +7,10 @@ import {
   ArrowUpCircle, 
   Activity, 
   ShieldCheck, 
-  ExternalLink 
+  Zap,
+  TrendingUp,
+  Clock,
+  Loader2
 } from "lucide-react";
 
 const UserDashboard = () => {
@@ -34,184 +37,174 @@ const UserDashboard = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p className="text-slate-500">Loading...</p>
+      <div className="flex items-center justify-center min-h-screen bg-[#F3F4F6]">
+        <Loader2 className="animate-spin text-[#E11D48]" size={40} />
       </div>
     );
   }
 
   if (error || !user) {
     return (
-      <div className="text-center p-10 text-red-500">
+      <div className="text-center p-10 text-[#E11D48] font-bold bg-[#F3F4F6] min-h-screen flex items-center justify-center">
         {error || 'User not found'}
       </div>
     );
   }
 
+  // --- LOGIC FIX START ---
+  // Actual Deposits: Jo "Internal Balance" ke ilawa kisi bhi gateway se aaye hain
   const actualDeposits = user.deposits.filter((d: any) => d.gateway !== "Internal Balance");
+
+  // Active Plans: Jo sirf "Internal Balance" se deduct huye aur Status "ACTIVE" hai
   const activePlans = user.deposits.filter(
     (d: any) => d.gateway === "Internal Balance" && d.status === "ACTIVE"
   );
+  // --- LOGIC FIX END ---
+
   const totalDeposits = actualDeposits.reduce((acc: number, curr: any) => acc + curr.amount, 0);
   const totalWithdrawals = user.withdrawals.reduce((acc: number, curr: any) => acc + curr.amount, 0);
 
   return (
-    <div className="min-h-screen bg-[#0a0a0c] text-slate-200 font-sans selection:bg-emerald-500/30">
-      {/* CUSTOM STYLES INJECTED VIA STYLE TAG */}
-      <style>{`\n        .glass-card {\n          background: rgba(255, 255, 255, 0.03);\n          backdrop-filter: blur(12px);\n          -webkit-backdrop-filter: blur(12px);\n          border: 1px solid rgba(255, 255, 255, 0.05);\n        }\n        .neon-border {\n          border: 1px solid rgba(34, 197, 94, 0.3);\n          box-shadow: 0 0 20px rgba(34, 197, 94, 0.05);\n        }\n        .neon-text {\n          text-shadow: 0 0 10px rgba(34, 197, 94, 0.5);\n        }\n        .neon-button {\n          background: rgba(34, 197, 94, 0.1);\n          border: 1px solid rgba(34, 197, 94, 0.5);\n          color: #22c55e;\n          transition: all 0.3s ease;\n        }\n        .neon-button:hover {\n          background: #22c55e;\n          color: black;\n          box-shadow: 0 0 20px rgba(34, 197, 94, 0.4);\n        }\n        .custom-scrollbar::-webkit-scrollbar {\n          width: 4px;\n        }\n        .custom-scrollbar::-webkit-scrollbar-thumb {\n          background: #22c55e;\n          border-radius: 10px;\n        }\n        @keyframes fadeIn {\n          from { opacity: 0; transform: translateY(10px); }\n          to { opacity: 1; transform: translateY(0); }\n        }\n        .animate-fade-in {\n          animation: fadeIn 0.7s ease-out forwards;\n        }\n      `}</style>
-
-      {/* Main Dashboard Container */}
-      <div className="p-4 md:p-8 lg:p-10 max-w-[1400px] mx-auto w-full animate-fade-in custom-scrollbar">
+    <div className="min-h-screen bg-[#F3F4F6] text-[#1F2937] font-sans selection:bg-[#E11D48]/10">
+      <div className="p-4 md:p-8 lg:p-10 pt-24 lg:pt-10 max-w-[1400px] mx-auto w-full animate-in fade-in slide-in-from-bottom-4 duration-700">
         
-        {/* 1. Header Section */}
-        <div className="mb-10 flex flex-col gap-6">
-          <div className="relative p-8 rounded-[2rem] glass-card neon-border overflow-hidden">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 blur-3xl rounded-full" />
-            <div className="relative z-10">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="bg-emerald-500 h-10 w-1.5 rounded-full shadow-[0_0_15px_#10b981]" />
-                <h1 className="text-3xl font-black uppercase tracking-tighter italic text-white leading-none">
-                  Account <span className="text-emerald-500 neon-text">Overview</span>
-                </h1>
-              </div>
-              <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.4em] ml-5 flex items-center gap-2">
-                <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_#10b981]" />
-                {user.email.split('@')[0]} • Online
-              </p>
-            </div>
+        {/* Header Section */}
+        <div className="mb-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div>
+            <h1 className="text-4xl font-black uppercase tracking-tighter italic text-[#111827]">
+              Command <span className="text-[#E11D48]">Center</span>
+            </h1>
+            <p className="text-[#6B7280] text-[10px] font-black uppercase tracking-[0.4em] mt-2 flex items-center gap-2">
+              <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_#10b981]" />
+              {user.email.split('@')[0]} • System Operational
+            </p>
+          </div>
+          <div className="flex items-center gap-3 bg-white px-6 py-3 rounded-2xl shadow-sm border border-[#E5E7EB]">
+             <ShieldCheck size={18} className="text-[#E11D48]" />
+             <span className="text-[10px] font-black uppercase tracking-widest text-[#4B5563]">Verified Account</span>
           </div>
         </div>
 
-        {/* 2. Primary Financial Controls */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-12">
-          
-          {/* Main Balance Terminal */}
-          <div className="glass-card neon-border p-6 sm:p-8 rounded-[2.5rem] relative overflow-hidden group col-span-1 md:col-span-2 min-h-[220px]">
-            <div className="absolute -top-24 -right-24 w-80 h-80 bg-emerald-500/5 rounded-full blur-[100px] group-hover:bg-emerald-500/10 transition-all duration-700" />
-            
+        {/* Balance Terminal */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+          <div className="lg:col-span-2 bg-[#111827] p-8 md:p-12 rounded-[3rem] shadow-2xl relative overflow-hidden group border border-white/5">
+            <div className="absolute top-0 right-0 w-80 h-80 bg-[#E11D48]/10 blur-[100px] -mr-20 -mt-20 group-hover:bg-[#E11D48]/15 transition-all duration-700" />
             <div className="relative z-10 flex flex-col h-full justify-between">
-              <div>
-                <div className="flex items-center justify-between mb-6">
-                  <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em] italic">Total Balance</p>
-                  <div className="p-3 bg-emerald-500/10 rounded-2xl border border-emerald-500/20 text-emerald-500 shadow-[0_0_15px_rgba(34,197,94,0.1)]">
-                    <Wallet size={24} />
+              <div className="space-y-6">
+                <div className="flex items-center justify-between">
+                  <div className="px-4 py-1.5 bg-[#E11D48] rounded-full">
+                    <p className="text-white text-[9px] font-black uppercase tracking-[0.2em]">Live Assets</p>
+                  </div>
+                  <div className="p-4 bg-white/5 rounded-2xl border border-white/10 text-[#E11D48]">
+                    <Wallet size={28} strokeWidth={2.5} />
                   </div>
                 </div>
-                
-                <div className="flex flex-col gap-1">
-                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Available Balance</span>
-                  <h3 className="text-4xl sm:text-6xl font-black text-white tracking-tighter flex items-baseline gap-3">
-                    <span className="text-emerald-500 italic opacity-80 text-xl md:text-3xl">Rs.</span>
-                    {user.balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                <div className="space-y-1">
+                  <p className="text-white/40 text-[11px] font-black uppercase tracking-[0.3em] ml-1">Total Trading Balance</p>
+                  <h3 className="text-5xl md:text-7xl font-black text-white tracking-tighter flex items-baseline gap-4">
+                    <span className="text-[#E11D48] italic opacity-90 text-2xl md:text-4xl">Rs.</span>
+                    {user.balance.toLocaleString()}
                   </h3>
                 </div>
               </div>
-              
-              <div className="mt-8 flex flex-wrap gap-4">
-                 <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500/5 rounded-full border border-emerald-500/10 backdrop-blur-xl">
-                    <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_10px_#10b981]" />
-                    <span className="text-emerald-500 text-[9px] font-black uppercase tracking-widest">System Live</span>
+              <div className="mt-12 flex flex-wrap gap-4 pt-8 border-t border-white/5">
+                 <div className="flex items-center gap-3 px-5 py-2.5 bg-white/5 rounded-xl border border-white/10 backdrop-blur-xl">
+                    <TrendingUp size={16} className="text-[#E11D48]" />
+                    <span className="text-white text-[10px] font-black uppercase tracking-widest">Optimized Returns</span>
                  </div>
-                 <div className="flex items-center gap-2 px-4 py-2 bg-orange-500/5 rounded-full border border-orange-500/10 backdrop-blur-xl">
-                    <Activity size={12} className="text-orange-500" />
-                    <span className="text-orange-500 text-[9px] font-black uppercase tracking-widest">Profit Optimized</span>
+                 <div className="flex items-center gap-3 px-5 py-2.5 bg-white/5 rounded-xl border border-white/10 backdrop-blur-xl">
+                    <Zap size={16} className="text-[#E11D48] fill-[#E11D48]" />
+                    <span className="text-white text-[10px] font-black uppercase tracking-widest">Instant Liquidity</span>
                  </div>
               </div>
             </div>
           </div>
 
-          {/* Global Statistics Grid */}
-          <div className="grid grid-cols-2 gap-3 md:gap-4 col-span-1 md:col-span-2">
-            {/* Total Inbound */}
-            <div className="bg-gradient-to-br from-emerald-500/10 to-transparent p-5 rounded-[2rem] flex flex-col justify-between group hover:border-emerald-500/40 transition-all border border-white/5">
-              <div className="flex justify-between items-start">
-                <div className="p-2 bg-emerald-500/20 rounded-xl text-emerald-500 group-hover:scale-110 transition-transform">
-                  <ArrowDownCircle size={22} />
+          <div className="grid grid-cols-1 gap-6">
+             <div className="bg-white p-8 rounded-[2.5rem] border border-[#E5E7EB] shadow-xl group overflow-hidden relative">
+                <div className="flex items-center gap-5 mb-6">
+                   <div className="p-4 bg-emerald-50 rounded-2xl text-emerald-600 border border-emerald-100">
+                      <ArrowDownCircle size={24} />
+                   </div>
+                   <p className="text-[#9CA3AF] text-[10px] font-black uppercase tracking-widest">Inbound Equity</p>
                 </div>
-                <span className="text-emerald-500/40 text-[9px] font-black italic">IN</span>
-              </div>
-              <div>
-                <p className="text-slate-400 text-[10px] font-black uppercase mb-1">Deposits</p>
-                <h3 className="text-2xl font-black text-white">Rs. {totalDeposits.toLocaleString()}</h3>
-              </div>
-            </div>
+                <h4 className="text-3xl font-black text-[#111827]">Rs. {totalDeposits.toLocaleString()}</h4>
+             </div>
 
-            {/* Total Outbound */}
-            <div className="bg-gradient-to-br from-orange-500/10 to-transparent p-5 rounded-[2rem] flex flex-col justify-between group hover:border-orange-500/40 transition-all border border-white/5">
-              <div className="flex justify-between items-start">
-                <div className="p-2 bg-orange-500/20 rounded-xl text-orange-500 group-hover:scale-110 transition-transform">
-                  <ArrowUpCircle size={22} />
+             <div className="bg-white p-8 rounded-[2.5rem] border border-[#E5E7EB] shadow-xl group overflow-hidden relative">
+                <div className="flex items-center gap-5 mb-6">
+                   <div className="p-4 bg-rose-50 rounded-2xl text-[#E11D48] border border-rose-100">
+                      <ArrowUpCircle size={24} />
+                   </div>
+                   <p className="text-[#9CA3AF] text-[10px] font-black uppercase tracking-widest">Total Payouts</p>
                 </div>
-                <span className="text-orange-500/40 text-[9px] font-black italic">OUT</span>
-              </div>
-              <div>
-                <p className="text-slate-400 text-[10px] font-black uppercase mb-1">Withdrawals</p>
-                <h3 className="text-2xl font-black text-white">Rs. {totalWithdrawals.toLocaleString()}</h3>
-              </div>
-            </div>
-
-            {/* Active Nodes */}
-            <div className="glass-card p-5 rounded-[2rem] flex flex-col justify-between group hover:neon-border transition-all border border-white/5">
-              <Activity size={22} className="text-emerald-500 mb-4" />
-              <div>
-                <p className="text-slate-400 text-[10px] font-black uppercase mb-1">Active Plans</p>
-                <h3 className="text-2xl font-black text-white neon-text">{activePlans.length}</h3>
-              </div>
-            </div>
-
-            {/* Security Status */}
-            <div className="glass-card p-5 rounded-[2rem] flex flex-col justify-between group border border-white/5">
-              <ShieldCheck size={22} className="text-blue-400 mb-4" />
-              <div>
-                <p className="text-slate-400 text-[10px] font-black uppercase mb-1">Security</p>
-                <h3 className="text-2xl font-black text-white uppercase text-sm tracking-widest">Encrypted</h3>
-              </div>
-            </div>
+                <h4 className="text-3xl font-black text-[#111827]">Rs. {totalWithdrawals.toLocaleString()}</h4>
+             </div>
           </div>
         </div>
 
-        {/* 3. Operational History */}
-        <div className="grid grid-cols-1 gap-8">
-          <div className="space-y-6">
-            <div className="flex items-center justify-between px-2">
-              <h2 className="text-xl font-black uppercase italic tracking-tighter text-white">
-                Activity <span className="text-emerald-500 neon-text">History</span>
-              </h2>
-              <button className="neon-button text-[10px] font-black px-6 py-2 rounded-full uppercase tracking-widest italic cursor-pointer">
-                View All
-              </button>
-            </div>
-            
-            <div className="glass-card neon-border rounded-[2.5rem] p-6 md:p-8 relative overflow-hidden">
-              {actualDeposits.length === 0 ? (
-                <div className="text-center py-20 bg-card/50 rounded-[2rem] border-2 border-dashed border-emerald-500/10 flex flex-col items-center gap-4">
-                  <Activity size={32} className="text-emerald-500/20" />
-                  <p className="text-slate-500 text-[10px] font-black uppercase tracking-[0.4em]">No Transactions</p>
+        {/* Secondary Stats & History */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          
+          {/* Active Nodes Card */}
+          <div className="bg-[#111827] p-8 rounded-[3rem] text-white flex flex-col justify-between shadow-2xl relative overflow-hidden">
+             <div className="flex items-center gap-4 mb-8">
+                <div className="p-4 bg-[#E11D48] rounded-2xl">
+                   <Activity size={24} strokeWidth={3} />
                 </div>
-              ) : (
-                <div className="space-y-4">
+                <div>
+                   <p className="text-white/40 text-[10px] font-black uppercase tracking-widest">Protocol Stats</p>
+                   <h3 className="text-xl font-black uppercase italic tracking-tighter">Active <span className="text-[#E11D48]">Plans</span></h3>
+                </div>
+             </div>
+             
+             <div className="space-y-6">
+                <div className="bg-white/5 p-6 rounded-3xl border border-white/10">
+                   <h4 className="text-4xl font-black text-white italic">{activePlans.length} <span className="text-xs font-bold not-italic text-white/40 uppercase tracking-widest ml-2">Active Plans</span></h4>
+                </div>
+                <div className="flex items-center gap-3 px-2">
+                   <Clock size={14} className="text-[#E11D48]" />
+                   <p className="text-[9px] font-black uppercase tracking-widest text-white/60">Profit cycle running 24/7</p>
+                </div>
+             </div>
+          </div>
+
+          {/* Activity Ledger Table */}
+          <div className="lg:col-span-2 bg-white border border-[#E5E7EB] rounded-[3rem] p-8 md:p-10 shadow-sm relative overflow-hidden">
+             <div className="flex items-center justify-between mb-10">
+                <h2 className="text-xl font-black uppercase italic tracking-tighter text-[#111827]">
+                  Transaction <span className="text-[#E11D48]">Ledger</span>
+                </h2>
+             </div>
+
+             {actualDeposits.length === 0 ? (
+                <div className="text-center py-20 bg-[#F9FAFB] rounded-[2.5rem] border-2 border-dashed border-[#E5E7EB] flex flex-col items-center gap-4">
+                  <Activity size={32} className="text-[#D1D5DB]" />
+                  <p className="text-[#9CA3AF] text-[10px] font-black uppercase tracking-[0.4em]">Zero Operations Logged</p>
+                </div>
+             ) : (
+                <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
                   {actualDeposits.map((dep: any) => (
-                    <div key={dep.id} className="flex items-center justify-between p-5 bg-white/[0.02] border border-white/5 rounded-2xl hover:bg-white/[0.05] hover:border-emerald-500/30 transition-all group cursor-pointer">
+                    <div key={dep.id} className="flex items-center justify-between p-5 bg-[#F9FAFB] border border-[#F3F4F6] rounded-[1.5rem] hover:border-[#E11D48]/30 transition-all group">
                       <div className="flex items-center gap-5">
-                        <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center border border-white/10 group-hover:border-emerald-500/40">
-                           <Wallet size={20} className="text-emerald-500" />
+                        <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center border border-[#E5E7EB] group-hover:text-[#E11D48] shadow-sm">
+                           <ArrowDownCircle size={20} />
                         </div>
                         <div>
-                          <p className="text-sm font-black uppercase text-white tracking-tight">{dep.gateway || 'Deposit'}</p>
-                          <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">ID: {dep.transactionId?.substring(0, 10)}...</p>
+                          <p className="text-sm font-black uppercase text-[#111827] tracking-tight">{dep.gateway || 'Deposit'}</p>
+                          <p className="text-[10px] text-[#9CA3AF] font-bold uppercase tracking-widest italic">{new Date(dep.createdAt).toLocaleDateString()}</p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-lg font-black text-emerald-500 neon-text">+Rs. {dep.amount.toLocaleString()}</p>
-                        <span className={`text-[8px] font-black px-3 py-1 rounded-full uppercase ${
-                          dep.status === 'APPROVED' ? 'bg-emerald-500/20 text-emerald-500' : 'bg-orange-500/20 text-orange-500'
+                        <p className="text-lg font-black text-[#111827] italic">+Rs. {dep.amount.toLocaleString()}</p>
+                        <span className={`text-[8px] font-black px-3 py-1 rounded-full uppercase tracking-widest ${
+                          dep.status === 'APPROVED' ? 'bg-emerald-100 text-emerald-700' : 'bg-[#FFF1F2] text-[#E11D48]'
                         }`}>{dep.status}</span>
                       </div>
                     </div>
                   ))}
                 </div>
-              )}
-            </div>
+             )}
           </div>
         </div>
       </div>

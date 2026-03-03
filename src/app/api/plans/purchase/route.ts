@@ -13,7 +13,6 @@ export async function POST(req: Request) {
     const { planName, amount: rawAmount } = await req.json();
     const amount = parseFloat(rawAmount);
 
-    // 1. Fetch Plan from DB for validation
     const plan = await db.plan.findUnique({
       where: { name: planName, active: true }
     });
@@ -26,43 +25,38 @@ export async function POST(req: Request) {
       where: { email: session.user.email! }
     });
 
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    if (!user || user.balance < amount) {
+      return NextResponse.json({ error: "Insufficient balance" }, { status: 400 });
     }
 
-    // 2. Atomic Update with condition (though Prisma decrement does this internally, we wrap in transaction)
-    try {
-      if (user.balance < amount) {
-        return NextResponse.json({ error: "Insufficient balance" }, { status: 400 });
-      }
+    const transactionId = `PLAN-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
 
-      const transactionId = `PLAN-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+    // TRANSACTION BLOCK
+    await db.$transaction([
+      // 1. User ka balance kam karo aur totalInvested barhao
+      db.user.update({
+        where: { id: user.id },
+        data: { 
+          balance: { decrement: amount },
+          // Agar aapke schema mein totalInvested hai to niche wali line uncomment karein
+          // totalInvested: { increment: amount } 
+        }
+      }),
+      
+      // 2. Plan ki entry karo lekin gateway "PLAN_PURCHASE" rakho
+      db.deposit.create({
+        data: {
+          userId: user.id,
+          amount: amount,
+          planName: planName,
+          gateway: "PLAN_PURCHASE", // <--- Pehchaan ke liye
+          status: "COMPLETED", 
+          transactionId
+        }
+      })
+    ]);
 
-      await db.$transaction([
-        db.user.update({
-          where: { id: user.id, balance: { gte: amount } }, // Extra check for safety
-          data: { balance: { decrement: amount } }
-        }),
-        db.deposit.create({
-          data: {
-            userId: user.id,
-            amount: amount,
-            planName: planName,
-            gateway: "Internal Balance",
-            status: "ACTIVE",
-            transactionId
-          }
-        })
-      ]);
-
-      console.log(`✅ Plan ${plan.id} (${planName}) purchased by user ${user.id}`);
-      return NextResponse.json({ 
-        success: true, 
-        message: "Plan activated successfully"
-      });
-    } catch (error) {
-       return NextResponse.json({ error: "Transaction failed. Possible balance mismatch." }, { status: 400 });
-    }
+    return NextResponse.json({ success: true, message: "Plan activated successfully" });
 
   } catch (error) {
     console.error("Plan purchase error:", error);
