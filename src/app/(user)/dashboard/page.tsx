@@ -51,18 +51,28 @@ const UserDashboard = () => {
     );
   }
 
-  // --- LOGIC FIX START ---
-  // Actual Deposits: Jo "Internal Balance" ke ilawa kisi bhi gateway se aaye hain
-  const actualDeposits = user.deposits.filter((d: any) => d.gateway !== "Internal Balance");
+  // ✅ --- LOGIC FIX START ---
+  // 1. Safe array check
+  const depositsArray = user?.deposits || [];
+  const withdrawalsArray = user?.withdrawals || [];
 
-  // Active Plans: Jo sirf "Internal Balance" se deduct huye aur Status "ACTIVE" hai
-  const activePlans = user.deposits.filter(
-    (d: any) => d.gateway === "Internal Balance" && d.status === "ACTIVE"
+  // 2. Actual Deposits: Inbound Equity (Excluding Plan purchases)
+  // Humne "Internal", "PLAN_PURCHASE" aur "Internal Balance" teeno ko filter kar diya safety ke liye
+  const actualDeposits = depositsArray.filter((d: any) => 
+    d.gateway !== "Internal Balance" && 
+    d.gateway !== "Internal" && 
+    d.gateway !== "PLAN_PURCHASE"
+  );
+
+  // 3. Active Plans: Jo investment ke liye use huye
+  const activePlans = depositsArray.filter((d: any) => 
+    (d.gateway === "Internal Balance" || d.gateway === "Internal" || d.gateway === "PLAN_PURCHASE") 
+    && d.status === "ACTIVE"
   );
   // --- LOGIC FIX END ---
 
   const totalDeposits = actualDeposits.reduce((acc: number, curr: any) => acc + curr.amount, 0);
-  const totalWithdrawals = user.withdrawals.reduce((acc: number, curr: any) => acc + curr.amount, 0);
+  const totalWithdrawals = withdrawalsArray.reduce((acc: number, curr: any) => acc + (curr.amount || 0), 0);
 
   return (
     <div className="min-h-screen bg-[#F3F4F6] text-[#1F2937] font-sans selection:bg-[#E11D48]/10">
@@ -76,7 +86,7 @@ const UserDashboard = () => {
             </h1>
             <p className="text-[#6B7280] text-[10px] font-black uppercase tracking-[0.4em] mt-2 flex items-center gap-2">
               <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse shadow-[0_0_8px_#10b981]" />
-              {user.email.split('@')[0]} • System Operational
+              {user?.email?.split('@')[0]} • System Operational
             </p>
           </div>
           <div className="flex items-center gap-3 bg-white px-6 py-3 rounded-2xl shadow-sm border border-[#E5E7EB]">
@@ -103,7 +113,7 @@ const UserDashboard = () => {
                   <p className="text-white/40 text-[11px] font-black uppercase tracking-[0.3em] ml-1">Total Trading Balance</p>
                   <h3 className="text-5xl md:text-7xl font-black text-white tracking-tighter flex items-baseline gap-4">
                     <span className="text-[#E11D48] italic opacity-90 text-2xl md:text-4xl">Rs.</span>
-                    {user.balance.toLocaleString()}
+                    {(user?.balance || 0).toLocaleString()}
                   </h3>
                 </div>
               </div>
@@ -196,7 +206,7 @@ const UserDashboard = () => {
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-lg font-black text-[#111827] italic">+Rs. {dep.amount.toLocaleString()}</p>
+                        <p className="text-lg font-black text-[#111827] italic">+Rs. {(dep.amount || 0).toLocaleString()}</p>
                         <span className={`text-[8px] font-black px-3 py-1 rounded-full uppercase tracking-widest ${
                           dep.status === 'APPROVED' ? 'bg-emerald-100 text-emerald-700' : 'bg-[#FFF1F2] text-[#E11D48]'
                         }`}>{dep.status}</span>
