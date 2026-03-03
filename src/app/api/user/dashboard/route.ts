@@ -10,28 +10,28 @@ export async function GET() {
 
     const userId = (session.user as any).id;
 
-    // ✅ Calculation: Sirf wo deposits jo Admin ne Approve kiye aur jo Plan Purchase nahi hain
-    const stats = await db.deposit.aggregate({
-      where: {
-        userId: userId,
-        status: "APPROVED" as any, 
-        NOT: {
-          gateway: { in: ["Internal", "PLAN_PURCHASE"] } // Dono cover kar liye safety ke liye
-        }
-      },
-      _sum: { amount: true }
-    });
-
     const user = await db.user.findUnique({
       where: { id: userId },
-      select: { balance: true }
+      include: {
+        deposits: {
+          orderBy: { createdAt: 'desc' }
+        },
+        withdrawals: {
+          orderBy: { createdAt: 'desc' }
+        }
+      }
     });
 
+    if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
+
     return NextResponse.json({
-      balance: user?.balance || 0,
-      totalDeposited: stats._sum.amount || 0,
+      name: user.name,
+      email: user.email,
+      balance: user.balance || 0,
+      deposits: user.deposits || [],
+      withdrawals: user.withdrawals || []
     });
   } catch (error) {
-    return NextResponse.json({ error: "Error" }, { status: 500 });
+    return NextResponse.json({ error: "Internal Error" }, { status: 500 });
   }
 }

@@ -8,21 +8,23 @@ datasource db {
 }
 
 model User {
-  id            String       @id @default(cuid())
-  email         String       @unique
-  password      String
-  role          Role         @default(USER)
-  balance       Float        @default(0.0)
-  createdAt     DateTime     @default(now())
-  name          String?
-  walletAddress String?
+  id              String       @id @default(cuid())
+  email           String       @unique
+  password        String
+  role            Role         @default(USER)
+  balance         Float        @default(0.0)
+  // 👇 Added this field for your dashboard card
+  totalDeposit    Float        @default(0.0) 
+  createdAt       DateTime     @default(now())
+  name            String?
+  walletAddress   String?
   twoFactorSecret String?
-  isTwoFactorEnabled Boolean @default(false)
-  deposits      Deposit[]
-  withdrawals   Withdrawal[]
-  referrerId    String?
-  referrer      User?    @relation("UserReferrals", fields: [referrerId], references: [id])
-  referredUsers User[]   @relation("UserReferrals")
+  isTwoFactorEnabled Boolean   @default(false)
+  deposits        Deposit[]
+  withdrawals     Withdrawal[]
+  referrerId      String?
+  referrer        User?        @relation("UserReferrals", fields: [referrerId], references: [id])
+  referredUsers   User[]       @relation("UserReferrals")
 }
 
 model SystemSetting {
@@ -38,17 +40,17 @@ model SystemSetting {
 }
 
 model Deposit {
-  id              String   @id @default(cuid())
+  id              String        @id @default(cuid())
   userId          String
   amount          Float
-  gateway         String?  // "JazzCash", "EasyPaisa", "USDT"
-  planName        String?  @default("Manual Deposit")
-  transactionId   String?  @unique // User jo TID dalay ga (Manual)
-  transactionHash String?  @unique // User jo hash dalay ga (Crypto/Plan)
-  slipImage       String?  // Base64 or URL of the cash slip image
+  gateway         String?       // "JazzCash", "EasyPaisa", "USDT"
+  planName        String?       @default("Manual Deposit")
+  transactionId   String?       @unique 
+  transactionHash String?       @unique 
+  slipImage       String?       
   status          DepositStatus @default(PENDING)
-  createdAt       DateTime @default(now())
-  user            User     @relation(fields: [userId], references: [id])
+  createdAt       DateTime      @default(now())
+  user            User          @relation(fields: [userId], references: [id])
 }
 
 model Withdrawal {
@@ -85,8 +87,8 @@ model Plan {
   name        String   @unique
   minAmount   Float
   maxAmount   Float
-  roi         Float    // Percentage value (e.g., 2.5 for 2.5%)
-  duration    String   // e.g., "24 Hours"
+  roi         Float    
+  duration    String   
   icon        String?  @default("Zap")
   popular     Boolean  @default(false)
   active      Boolean  @default(true)

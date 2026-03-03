@@ -6,6 +6,8 @@ import { NextResponse } from "next/server";
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions);
+    
+    // Check if user is logged in and is an ADMIN
     if (!session || (session.user as any).role !== "ADMIN") {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -27,14 +29,18 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Deposit already processed" }, { status: 400 });
     }
 
-    // 2. Start Transaction (Update Balance + Approve Deposit)
-    // For real deposits (no planName), set to APPROVED. For plan investments, status stays ACTIVE.
+    // 2. Decide Status
     const newStatus = deposit.planName ? "ACTIVE" : "APPROVED";
     
+    // 3. Update Database (Balance, Total Deposit and Deposit Status)
     await db.$transaction([
       db.user.update({
         where: { id: deposit.userId },
-        data: { balance: { increment: deposit.amount } }
+        data: { 
+          balance: { increment: deposit.amount },
+          // 👇 Ye line aapke dashboard ke "Total Deposit" card ko update karegi
+          totalDeposit: { increment: deposit.amount } 
+        }
       }),
       db.deposit.update({
         where: { id: depositId },
@@ -42,7 +48,7 @@ export async function POST(req: Request) {
       })
     ]);
 
-    return NextResponse.json({ success: true, message: "Deposit Approved" });
+    return NextResponse.json({ success: true, message: "Deposit Approved and Balance Updated" });
 
   } catch (error) {
     console.error("Deposit approval error:", error);
