@@ -2,8 +2,11 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { 
-  LayoutDashboard, ArrowDownRight, ArrowUpLeft, 
-  Users2, Settings, Landmark
+  LayoutDashboard, 
+  PlusCircle, 
+  ArrowUpCircle, 
+  Users2, 
+  ListOrdered 
 } from "lucide-react";
 
 export default function MobileBottomNav() {
@@ -11,33 +14,37 @@ export default function MobileBottomNav() {
 
   const navItems = [
     { icon: <LayoutDashboard size={20} />, label: "Home", href: "/dashboard" },
-    { icon: <Landmark size={20} />, label: "Plans", href: "/dashboard/plans" },
-    { icon: <ArrowDownRight size={20} />, label: "Deposit", href: "/dashboard/deposit" },
-    { icon: <ArrowUpLeft size={20} />, label: "Withdraw", href: "/dashboard/withdraw" },
-    { icon: <Users2 size={20} />, label: "Referrals", href: "/dashboard/affiliates" },
+    { icon: <ListOrdered size={20} />, label: "Plans", href: "/dashboard/plans" },
+    { icon: <PlusCircle size={20} />, label: "Deposit", href: "/dashboard/deposit" },
+    { icon: <ArrowUpCircle size={20} />, label: "Withdraw", href: "/dashboard/withdraw" },
+    { icon: <Users2 size={20} />, label: "Team", href: "/dashboard/affiliates" },
   ];
 
   return (
-    <div className="lg:hidden fixed bottom-0 left-0 w-full bg-[#0f172a]/90 backdrop-blur-xl border-t border-[#22c55e]/20 px-2 py-3 z-40 flex justify-around items-center shadow-[0_-4px_10px_rgba(0,0,0,0.3)]">
-      {navItems.map((item) => {
-        const isActive = pathname === item.href;
-        return (
-          <Link 
-            key={item.label}
-            href={item.href}
-            className={`flex flex-col items-center gap-1.5 transition-all
-              ${isActive ? "text-purple-600 scale-110" : "text-slate-400"}
-            `}
-          >
-            <div className={`p-1.5 rounded-xl transition-all ${isActive ? "bg-[#22c55e]/10 shadow-sm" : ""}`}>
-              {item.icon}
-            </div>
-            <span className={`text-[8px] font-black uppercase tracking-widest ${isActive ? "opacity-100" : "opacity-60"}`}>
-              {item.label}
-            </span>
-          </Link>
-        );
-      })}
+    <div className="lg:hidden fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 z-50">
+      <div className="flex justify-around items-center h-16">
+        {navItems.map((item) => {
+          const isActive = pathname === item.href;
+          
+          return (
+            <Link 
+              key={item.label}
+              href={item.href}
+              className="flex flex-col items-center justify-center w-full h-full transition-all"
+            >
+              <div className={`mb-1 ${isActive ? "text-[#E11D48]" : "text-gray-400"}`}>
+                {item.icon}
+              </div>
+              
+              <span className={`text-[9px] min-[320px]:text-[10px] font-bold uppercase tracking-tight
+                ${isActive ? "text-[#E11D48]" : "text-gray-400"}
+              `}>
+                {item.label}
+              </span>
+            </Link>
+          );
+        })}
+      </div>
     </div>
   );
 }
