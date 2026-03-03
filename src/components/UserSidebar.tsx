@@ -1,16 +1,13 @@
 "use client";
 import React, { useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+// ❌ Purana farzi signOut hata kar asli wala import kiya:
+import { signOut } from "next-auth/react"; 
 import { 
   LayoutDashboard, Wallet, ArrowDownRight, ArrowUpLeft, 
   Users2, Settings, LogOut, Menu, X, Landmark, ShieldCheck 
 } from "lucide-react";
-
-// Mocking Next.js tools
-const Link = ({ href, children, className, onClick }: any) => (
-  <a href={href} className={className} onClick={onClick}>{children}</a>
-);
-const usePathname = () => "/dashboard";
-const signOut = ({ callbackUrl }: any) => console.log("Disconnecting...", callbackUrl);
 
 // Updated BrandLogo (Rose Red Theme)
 const LogoIcon = ({ className }: { className?: string }) => (
@@ -54,6 +51,13 @@ export default function UserSidebar() {
     { icon: <Settings size={20} />, label: "Settings", href: "/dashboard/settings" },
   ];
 
+  // ✅ Force Logout Function (Asli Wala)
+  const handleTerminate = async () => {
+    // Session kill karo aur foran login par redirect karo
+    await signOut({ redirect: false });
+    window.location.replace("/login");
+  };
+
   return (
     <>
       <div className="lg:hidden fixed top-0 left-0 w-full bg-white border-b border-gray-100 px-6 py-4 z-[50] flex justify-between items-center shadow-sm">
@@ -79,8 +83,26 @@ export default function UserSidebar() {
             );
           })}
         </nav>
+        
+        {/* Progress Bar for Security feel */}
+        <div className="px-10 mt-6">
+           <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
+              <div className="flex items-center gap-2 mb-2">
+                 <ShieldCheck size={12} className="text-emerald-600" />
+                 <span className="text-[8px] font-black text-emerald-700 uppercase">System Secure</span>
+              </div>
+              <div className="w-full h-1 bg-emerald-200 rounded-full overflow-hidden">
+                 <div className="h-full bg-emerald-600 w-full animate-pulse" />
+              </div>
+           </div>
+        </div>
+
         <div className="absolute bottom-0 left-0 w-full p-6 space-y-4">
-          <button onClick={() => signOut({ callbackUrl: "/login" })} className="flex items-center justify-center gap-3 w-full px-5 py-5 rounded-[1.5rem] text-gray-400 bg-gray-50 hover:bg-rose-600 hover:text-white transition-all font-black text-[10px] uppercase tracking-[0.2em] border border-gray-100 shadow-sm group">
+          {/* ✅ Terminate Button calling handleTerminate */}
+          <button 
+            onClick={handleTerminate} 
+            className="flex items-center justify-center gap-3 w-full px-5 py-5 rounded-[1.5rem] text-gray-400 bg-gray-50 hover:bg-rose-600 hover:text-white transition-all font-black text-[10px] uppercase tracking-[0.2em] border border-gray-100 shadow-sm group"
+          >
             <LogOut size={18} className="group-hover:-translate-x-1 transition-transform" /> Terminate Session
           </button>
         </div>
