@@ -12,14 +12,10 @@ export async function POST(req: Request) {
     const amount = parseFloat(rawAmount);
 
     const plan = await db.plan.findUnique({ where: { name: planName, active: true } });
-    if (!plan || amount < plan.minAmount || amount > plan.maxAmount) {
-      return NextResponse.json({ error: "Invalid plan or amount" }, { status: 400 });
-    }
+    if (!plan) return NextResponse.json({ error: "Plan not found" }, { status: 400 });
 
     const user = await db.user.findUnique({ where: { email: session.user.email! } });
-    if (!user || user.balance < amount) {
-      return NextResponse.json({ error: "Insufficient balance" }, { status: 400 });
-    }
+    if (!user || user.balance < amount) return NextResponse.json({ error: "Insufficient balance" }, { status: 400 });
 
     const transactionId = `PLAN-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
 
@@ -33,15 +29,15 @@ export async function POST(req: Request) {
           userId: user.id,
           amount: amount,
           planName: planName,
-          gateway: "PLAN_PURCHASE", // <--- Yeh identify karega ke yeh investment hai
-          status: "APPROVED" as any, 
+          gateway: "Internal", // Isko simple rakhein
+          status: "ACTIVE" as any, // Plans dikhane ke liye aksar status "ACTIVE" chahiye hota hai
           transactionId
         }
       })
     ]);
 
-    return NextResponse.json({ success: true, message: "Plan activated!" });
+    return NextResponse.json({ success: true });
   } catch (error) {
-    return NextResponse.json({ error: "Internal Error" }, { status: 500 });
+    return NextResponse.json({ error: "Error" }, { status: 500 });
   }
 }

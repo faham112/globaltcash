@@ -14,16 +14,12 @@ export async function GET() {
       select: { id: true, name: true, email: true, balance: true }
     });
 
-    if (!user) return NextResponse.json({ error: "User not found" }, { status: 404 });
-
-    // ✅ FIXED CALCULATION: Sum only real deposits, exclude Plan Purchases
+    // Sirf Real Deposits (Jo Admin ne Approve kiye aur jo Plan Purchase nahi hain)
     const totalDepositsAgg = await db.deposit.aggregate({
       where: {
         userId: userId,
-        status: "APPROVED" as any,
-        NOT: {
-          gateway: "PLAN_PURCHASE" // Is line se 5k + 5k wala masla hal ho jayega
-        }
+        status: "APPROVED" as any, // Ya jo bhi aapka Admin status set karta hai
+        NOT: { gateway: "Internal" }
       },
       _sum: { amount: true }
     });
@@ -32,8 +28,7 @@ export async function GET() {
       ...user,
       totalDeposited: totalDepositsAgg._sum.amount || 0,
     });
-
   } catch (error) {
-    return NextResponse.json({ error: "Internal Error" }, { status: 500 });
+    return NextResponse.json({ error: "Error" }, { status: 500 });
   }
 }
