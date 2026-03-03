@@ -1,112 +1,87 @@
 "use client";
 import React, { useState } from "react";
-import { Menu, X, LayoutDashboard, LogOut, Loader2 } from "lucide-react";
+import { Menu, X, LayoutDashboard, LogOut, Loader2, Zap, ShieldCheck, Mail, Scale } from "lucide-react";
 
-// Mocking Next.js and Next-Auth components/hooks for preview environment
-// Real app mein ye original imports hi rahenge
 const Link = ({ href, children, className, onClick }: any) => (
   <a href={href} className={className} onClick={onClick}>{children}</a>
 );
 
-const usePathname = () => "/"; // Mock pathname
-const useSession = (): { data: any | null; status: "authenticated" | "unauthenticated" | "loading" } => ({ data: null, status: "unauthenticated" }); // Mock session
-const signOut = () => console.log("Signing out...");
-
-// Inline BrandLogo and LogoIcon to prevent resolution errors
 const LogoIcon = ({ className }: { className?: string }) => (
-  <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className={className}>
-    <circle cx="50" cy="50" r="40" fill="#22c55e" fillOpacity="0.1" />
-    <path d="M30 20L50 45L70 20M30 80L50 55L70 80" stroke="#22c55e" strokeWidth="12" strokeLinecap="round" strokeLinejoin="round" />
-    <circle cx="50" cy="50" r="8" fill="#22c55e" />
-  </svg>
+  <div className={`bg-[#E11D48] rounded-xl flex items-center justify-center ${className}`}>
+    <Zap size={20} className="text-white fill-white" />
+  </div>
 );
 
-const BrandLogo = ({ size = "md" }: { size?: string }) => {
-  const sizes: any = {
-    sm: { logo: "w-8 h-8", title: "text-lg", sub: "text-[8px]" },
-    md: { logo: "w-9 h-9", title: "text-xl", sub: "text-[9px]" },
-    lg: { logo: "w-11 h-11", title: "text-2xl", sub: "text-[11px]" }
-  };
-  const s = sizes[size] || sizes.md;
+const BrandLogo = () => {
   return (
     <div className="flex items-center gap-3 group">
-      <LogoIcon className={`${s.logo} group-hover:rotate-12 transition-transform duration-300`} />
+      <LogoIcon className="w-10 h-10 group-hover:rotate-[360deg] transition-transform duration-700 shadow-lg shadow-rose-200" />
       <div className="flex flex-col leading-none">
-        <span className={`${s.title} font-black text-[#22c55e] italic uppercase drop-shadow-[0_0_10px_rgba(34,197,94,0.5)]`}>Global</span>
-        <span className={`${s.sub} font-bold text-[#facc15] uppercase tracking-[0.4em] drop-shadow-[0_0_8px_rgba(250,204,21,0.4)]`}>Trust Cash</span>
+        <span className="text-xl font-black text-gray-900 italic uppercase tracking-tighter">Global</span>
+        <span className="text-[9px] font-black text-[#E11D48] uppercase tracking-[0.3em]">Capital</span>
       </div>
     </div>
   );
 };
 
 export default function Navbar() {
-  const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
-  const { data: session, status } = useSession();
-  const isLoading = status === "loading";
+  
+  // Real app hooks (Mocked for preview)
+  const session = null; 
+  const status = "unauthenticated"; 
+  const isLoading = false;
 
-  // Hide Navbar in Dashboard routes
-  if (pathname.startsWith("/dashboard") || pathname.startsWith("/admin")) {
-    return null;
-  }
-
-  const dashboardHref = (session?.user as any)?.role === "ADMIN" ? "/admin/dashboard" : "/dashboard";
+  const dashboardHref = "/dashboard";
 
   return (
-    <nav className="sticky top-0 z-50 w-full bg-[#020617]/80 backdrop-blur-xl border-b border-white/5">
-      <div className="flex items-center justify-between px-4 py-4 md:px-8 max-w-7xl mx-auto">
+    <nav className="fixed top-0 z-[100] w-full bg-white/80 backdrop-blur-2xl border-b border-gray-100">
+      <div className="flex items-center justify-between px-6 py-4 max-w-7xl mx-auto">
+        
         <Link href="/" className="group">
-          <BrandLogo size="md" />
+          <BrandLogo />
         </Link>
 
-        {/* Desktop Links */}
-        <div className="hidden md:flex items-center space-x-8 text-[11px] font-black uppercase tracking-[0.2em]">
-          <Link href="#plans" className="text-slate-400 hover:text-[#22c55e] transition-colors">Plans</Link>
-          <Link href="#features" className="text-slate-400 hover:text-[#22c55e] transition-colors">Features</Link>
+        {/* Desktop Navigation - HYIP Optimized */}
+        <div className="hidden lg:flex items-center space-x-8 text-[10px] font-black uppercase tracking-[0.15em]">
+          <Link href="#plans" className="text-gray-500 hover:text-[#E11D48] transition-colors">Plans</Link>
+          <Link href="#about" className="text-gray-500 hover:text-[#E11D48] transition-colors">About Us</Link>
+          <Link href="#contact" className="text-gray-500 hover:text-[#E11D48] transition-colors">Contact</Link>
+          <Link href="#terms" className="text-gray-500 hover:text-[#E11D48] transition-colors flex items-center gap-1">
+            <Scale size={12} className="text-[#E11D48]" /> Terms
+          </Link>
           
+          <div className="h-4 w-px bg-gray-200" />
+
           {isLoading ? (
-            <Loader2 className="animate-spin text-[#22c55e]" size={18} />
+            <Loader2 className="animate-spin text-[#E11D48]" size={18} />
           ) : session ? (
             <div className="flex items-center gap-6">
               <Link 
                 href={dashboardHref} 
-                className="flex items-center gap-2 text-[#22c55e] hover:brightness-125 transition bg-[#22c55e]/10 px-4 py-2 rounded-xl border border-[#22c55e]/20 shadow-[0_0_15px_rgba(34,197,94,0.1)]"
+                className="flex items-center gap-2 text-white bg-[#E11D48] px-6 py-2.5 rounded-2xl shadow-lg shadow-rose-200 hover:scale-105 transition-all"
               >
-                <LayoutDashboard size={16} />
+                <LayoutDashboard size={14} />
                 Terminal
               </Link>
-              <button 
-                onClick={() => signOut()}
-                className="text-slate-500 hover:text-red-500 transition flex items-center gap-2"
-              >
-                <LogOut size={16} />
-                Exit
+              <button className="text-gray-400 hover:text-red-600 transition flex items-center gap-2">
+                <LogOut size={14} />
               </button>
             </div>
           ) : (
-            <>
-              <Link 
-                href="/login" 
-                className="bg-[#22c55e] px-8 py-2.5 rounded-xl text-black font-black hover:shadow-[0_0_20px_rgba(34,197,94,0.4)] transition-all active:scale-95"
-              >
-                Login
-              </Link>
-            </>
+            <Link 
+              href="/login" 
+              className="bg-[#E11D48] px-10 py-3 rounded-2xl text-white font-black hover:shadow-xl hover:shadow-rose-200 transition-all active:scale-95"
+            >
+              Login
+            </Link>
           )}
         </div>
 
         {/* Mobile Toggle */}
-        <div className="flex md:hidden items-center gap-3">
-          {status === "authenticated" && (
-            <Link 
-              href={dashboardHref} 
-              className="px-4 py-2 bg-[#22c55e] text-black rounded-xl text-[10px] font-black uppercase tracking-tighter active:scale-95 transition-all shadow-[0_0_15px_rgba(34,197,94,0.3)]"
-            >
-              Portal
-            </Link>
-          )}
+        <div className="flex lg:hidden items-center gap-3">
           <button 
-            className="text-white p-2 bg-white/5 border border-white/10 rounded-xl active:scale-90 transition-all" 
+            className="text-gray-900 p-2.5 bg-gray-50 border border-gray-100 rounded-2xl active:scale-90 transition-all" 
             onClick={() => setIsOpen(!isOpen)}
           >
             {isOpen ? <X size={20} /> : <Menu size={20} />}
@@ -114,42 +89,31 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile Menu - Enhanced with Icons */}
       {isOpen && (
-        <div className="md:hidden absolute top-full left-0 w-full bg-[#0f172a] border-b border-white/10 p-6 flex flex-col space-y-4 animate-in slide-in-from-top duration-300 shadow-2xl">
-          <Link href="#plans" onClick={() => setIsOpen(false)} className="text-slate-300 text-sm font-bold uppercase tracking-widest">Investment Plans</Link>
-          <Link href="#features" onClick={() => setIsOpen(false)} className="text-slate-300 text-sm font-bold uppercase tracking-widest">Platform Features</Link>
-          <div className="h-px bg-white/5" />
+        <div className="lg:hidden absolute top-full left-0 w-full bg-white border-b border-gray-100 p-8 flex flex-col space-y-6 animate-in slide-in-from-top duration-300 shadow-2xl">
+          <Link href="#plans" onClick={() => setIsOpen(false)} className="text-gray-900 text-[10px] font-black uppercase tracking-widest flex items-center gap-3">
+            <Zap size={16} className="text-[#E11D48]" /> Plans
+          </Link>
+          <Link href="#about" onClick={() => setIsOpen(false)} className="text-gray-900 text-[10px] font-black uppercase tracking-widest flex items-center gap-3">
+            <ShieldCheck size={16} className="text-[#E11D48]" /> About Us
+          </Link>
+          <Link href="#contact" onClick={() => setIsOpen(false)} className="text-gray-900 text-[10px] font-black uppercase tracking-widest flex items-center gap-3">
+            <Mail size={16} className="text-[#E11D48]" /> Contact
+          </Link>
+          <Link href="#terms" onClick={() => setIsOpen(false)} className="text-gray-900 text-[10px] font-black uppercase tracking-widest flex items-center gap-3">
+            <Scale size={16} className="text-[#E11D48]" /> Terms of Service
+          </Link>
           
-          {isLoading ? (
-            <div className="flex justify-center p-4">
-              <Loader2 className="animate-spin text-[#22c55e]" size={24} />
-            </div>
-          ) : session ? (
-            <div className="flex flex-col gap-3">
-              <Link 
-                href={dashboardHref} 
-                onClick={() => setIsOpen(false)}
-                className="bg-[#22c55e]/10 text-[#22c55e] text-center py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] flex items-center justify-center gap-2 border border-[#22c55e]/20"
-              >
-                <LayoutDashboard size={18} /> Access Terminal
-              </Link>
-              <button 
-                onClick={() => { signOut(); setIsOpen(false); }}
-                className="bg-red-500/5 text-red-500 text-center py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] flex items-center justify-center gap-2 border border-red-500/10"
-              >
-                <LogOut size={18} /> Disconnect
-              </button>
-            </div>
-          ) : (
-            <Link 
-              href="/login" 
-              onClick={() => setIsOpen(false)} 
-              className="bg-[#22c55e] text-center py-4 rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] text-black shadow-[0_0_20px_rgba(34,197,94,0.2)]"
-            >
-              Authorized Login
-            </Link>
-          )}
+          <div className="h-px bg-gray-100" />
+          
+          <Link 
+            href="/login" 
+            onClick={() => setIsOpen(false)} 
+            className="bg-[#E11D48] text-white text-center py-5 rounded-3xl font-black uppercase tracking-widest text-[10px] shadow-lg shadow-rose-200"
+          >
+            Login
+          </Link>
         </div>
       )}
     </nav>

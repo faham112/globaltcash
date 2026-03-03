@@ -1,14 +1,26 @@
 "use client";
 import React from "react";
 import Link from "next/link";
-import { Mail, Shield, Globe, Github, Twitter, Linkedin, ChevronRight } from "lucide-react";
-import BrandLogo from "./BrandLogo";
+import { Mail, Shield, Globe, Twitter, Linkedin, ChevronRight, Zap, MessageCircle, Heart } from "lucide-react";
 import { usePathname } from "next/navigation";
+
+// Logo Component inside Footer to keep it consistent
+const FooterLogo = () => (
+  <div className="flex items-center gap-3">
+    <div className="bg-[#E11D48] p-2 rounded-xl shadow-lg shadow-rose-200">
+      <Zap size={20} className="text-white fill-white" />
+    </div>
+    <div className="flex flex-col leading-none">
+      <span className="text-xl font-black text-gray-900 italic uppercase tracking-tighter">Global</span>
+      <span className="text-[9px] font-black text-[#E11D48] uppercase tracking-[0.3em]">Capital</span>
+    </div>
+  </div>
+);
 
 export default function Footer() {
   const pathname = usePathname();
 
-  // Hide Footer in Dashboard routes for a cleaner admin/user experience
+  // Hide Footer in Dashboard routes
   if (pathname.startsWith("/dashboard") || pathname.startsWith("/admin")) {
     return null;
   }
@@ -17,74 +29,75 @@ export default function Footer() {
 
   const footerLinks = [
     {
-      title: "Platform",
+      title: "Navigation",
       links: [
         { name: "Investment Plans", href: "#plans" },
-        { name: "Global Investors", href: "#features" },
-        { name: "Platform Security", href: "#security" },
-        { name: "System Status", href: "#status" },
+        { name: "Profit Calculator", href: "#calculator" },
+        { name: "About Company", href: "#about" },
+        { name: "Active Nodes", href: "#status" },
       ]
     },
     {
-      title: "Company",
+      title: "Legal & Safety",
       links: [
-        { name: "About Intelligence", href: "/about" },
+        { name: "Terms of Service", href: "/terms" },
         { name: "Privacy Policy", href: "/privacy" },
-        { name: "Terms of Access", href: "/terms" },
-        { name: "Compliance", href: "/compliance" },
+        { name: "Risk Disclosure", href: "/risk" },
+        { name: "Anti-Fraud Policy", href: "/compliance" },
       ]
     },
     {
-      title: "Resources",
+      title: "Assistance",
       links: [
-        { name: "Documentation", href: "/docs" },
-        { name: "API Reference", href: "/api-docs" },
-        { name: "Community Hub", href: "/community" },
-        { name: "Partnership", href: "/partners" },
+        { name: "Live Support", href: "#support" },
+        { name: "Knowledge Base", href: "/faq" },
+        { name: "Contact Mail", href: "mailto:support@globalcapital.com" },
+        { name: "Community Telegram", href: "#" },
       ]
     }
   ];
 
   return (
-    <footer className="bg-[#0f172a] border-t border-[#22c55e]/20 pt-20 pb-10 px-4 md:px-8">
+    <footer className="bg-white border-t border-gray-100 pt-24 pb-12 px-6 overflow-hidden">
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-16 mb-24">
           
-          {/* Brand & Mission */}
-          <div className="lg:col-span-2 space-y-6">
-            <Link href="/" className="inline-block group">
-              <BrandLogo size="lg" />
+          {/* Brand Info */}
+          <div className="lg:col-span-2 space-y-8">
+            <Link href="/" className="inline-block hover:opacity-80 transition-opacity">
+              <FooterLogo />
             </Link>
-            <p className="text-slate-500 text-sm max-w-sm leading-relaxed font-medium">
-              The world&apos;s most advanced investment platform. Redefining digital earning through secure and stable infrastructure.
+            <p className="text-gray-500 text-sm max-w-sm leading-relaxed font-bold uppercase tracking-tight">
+              Empowering global investors with state-of-the-art liquidity protocols. 
+              Secure, transparent, and built for the future of finance.
             </p>
             <div className="flex items-center gap-4">
-              <a href="#" className="w-10 h-10 rounded-xl bg-[#1e293b] border border-[#22c55e]/20 flex items-center justify-center text-slate-400 hover:text-[#22c55e] hover:border-[#22c55e]/40 transition-all shadow-sm">
-                <Twitter size={18} />
+              <a href="#" className="w-12 h-12 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-400 hover:text-[#E11D48] hover:bg-rose-50 hover:border-rose-100 transition-all">
+                <Twitter size={20} />
               </a>
-              <a href="#" className="w-10 h-10 rounded-xl bg-[#1e293b] border border-[#22c55e]/20 flex items-center justify-center text-slate-400 hover:text-[#22c55e] hover:border-[#22c55e]/40 transition-all shadow-sm">
-                <Linkedin size={18} />
+              <a href="#" className="w-12 h-12 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-400 hover:text-[#E11D48] hover:bg-rose-50 hover:border-rose-100 transition-all">
+                <Linkedin size={20} />
               </a>
-              <a href="#" className="w-10 h-10 rounded-xl bg-[#1e293b] border border-[#22c55e]/20 flex items-center justify-center text-slate-400 hover:text-[#22c55e] hover:border-[#22c55e]/40 transition-all shadow-sm">
-                <Github size={18} />
+              <a href="#" className="w-12 h-12 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-400 hover:text-[#E11D48] hover:bg-rose-50 hover:border-rose-100 transition-all">
+                <MessageCircle size={20} />
               </a>
-              <a href="#" className="w-10 h-10 rounded-xl bg-[#1e293b] border border-[#22c55e]/20 flex items-center justify-center text-slate-400 hover:text-[#22c55e] hover:border-[#22c55e]/40 transition-all shadow-sm">
-                <Mail size={18} />
+              <a href="#" className="w-12 h-12 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center text-gray-400 hover:text-[#E11D48] hover:bg-rose-50 hover:border-rose-100 transition-all">
+                <Mail size={20} />
               </a>
             </div>
           </div>
 
           {/* Link Sections */}
           {footerLinks.map((section) => (
-            <div key={section.title} className="space-y-6">
-              <h4 className="text-[10px] font-black uppercase tracking-[0.3em] text-slate-400">
+            <div key={section.title} className="space-y-8">
+              <h4 className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-900 border-b border-gray-50 pb-4">
                 {section.title}
               </h4>
               <ul className="space-y-4">
                 {section.links.map((link) => (
                   <li key={link.name}>
-                    <Link href={link.href} className="text-sm text-slate-400 hover:text-[#22c55e] transition-colors flex items-center group gap-1">
-                      <ChevronRight size={12} className="opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all" />
+                    <Link href={link.href} className="text-[11px] font-black uppercase tracking-widest text-gray-400 hover:text-[#E11D48] transition-all flex items-center group gap-0 hover:gap-2">
+                      <ChevronRight size={14} className="opacity-0 -ml-4 group-hover:opacity-100 group-hover:ml-0 transition-all text-[#E11D48]" />
                       {link.name}
                     </Link>
                   </li>
@@ -95,26 +108,31 @@ export default function Footer() {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-10 border-t border-[#22c55e]/20 flex flex-col md:flex-row justify-between items-center gap-6">
-          <div className="flex items-center gap-6 text-[10px] font-black uppercase tracking-widest text-slate-400">
-            <span>© {currentYear} Global Trust Cash Network</span>
-            <span className="hidden md:block w-1 h-1 bg-[#1e293b] rounded-full" />
-            <span className="flex items-center gap-1.5 text-[#22c55e]">
-              <span className="w-1.5 h-1.5 bg-[#22c55e] rounded-full animate-pulse" />
-              Mainnet Active
-            </span>
+        <div className="pt-12 border-t border-gray-50 flex flex-col md:flex-row justify-between items-center gap-8">
+          <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">
+            <span>© {currentYear} Global Capital Network</span>
+            <div className="flex items-center gap-2 text-[#E11D48] bg-rose-50 px-4 py-1.5 rounded-full">
+              <span className="w-1.5 h-1.5 bg-[#E11D48] rounded-full animate-pulse" />
+              Mainnet Operations Active
+            </div>
           </div>
           
-          <div className="flex items-center gap-4 text-[10px] font-black uppercase tracking-widest text-slate-400">
-            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[#1e293b] rounded-lg border border-[#22c55e]/20">
-              <Shield size={12} className="text-[#22c55e]" />
-              <span>SSL Secure Connection</span>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-xl border border-gray-100">
+              <Shield size={14} className="text-[#E11D48]" />
+              <span className="text-[9px] font-black uppercase text-gray-500 tracking-tighter">SSL Encrypted</span>
             </div>
-            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-[#1e293b] rounded-lg border border-[#22c55e]/20">
-              <Globe size={12} className="text-[#22c55e]" />
-              <span>Global Availability</span>
+            <div className="flex items-center gap-2 px-4 py-2 bg-gray-50 rounded-xl border border-gray-100">
+              <Globe size={14} className="text-[#E11D48]" />
+              <span className="text-[9px] font-black uppercase text-gray-500 tracking-tighter">Tier-4 Data Center</span>
             </div>
           </div>
+        </div>
+        
+        <div className="mt-12 text-center">
+          <p className="text-[9px] font-black uppercase tracking-[0.5em] text-gray-600 flex items-center justify-center gap-2">
+            Made with <Heart size={10} className="fill-[#E11D48] text-[#E11D48]" /> for the future of Wealth
+          </p>
         </div>
       </div>
     </footer>

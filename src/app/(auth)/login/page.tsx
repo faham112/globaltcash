@@ -3,8 +3,20 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signIn, getSession } from "next-auth/react";
-import { LogIn, Mail, Lock, Eye, EyeOff, Loader2, ShieldCheck, AlertCircle } from "lucide-react";
-import BrandLogo from "@/components/BrandLogo";
+import { LogIn, Mail, Lock, Eye, EyeOff, Loader2, Zap, AlertCircle } from "lucide-react";
+
+// Local Logo Component to match the landing page style
+const BrandLogo = () => (
+  <div className="flex flex-col items-center gap-3 group">
+    <div className="bg-[#E11D48] p-4 rounded-2xl shadow-xl shadow-rose-200 group-hover:rotate-[360deg] transition-transform duration-700">
+      <Zap size={32} className="text-white fill-white" />
+    </div>
+    <div className="text-center">
+      <span className="block text-2xl font-black text-gray-900 italic uppercase tracking-tighter">Global Capital</span>
+      <span className="text-[10px] font-black text-[#E11D48] uppercase tracking-[0.4em]">Evolution Terminal</span>
+    </div>
+  </div>
+);
 
 export default function LoginPage() {
   const router = useRouter();
@@ -33,83 +45,80 @@ export default function LoginPage() {
         return;
       }
 
-      // Successful login - fetch session to get user role
       const session = await getSession();
-      
       router.refresh();
       
-      // Redirect based on user role from database
       if (session?.user && (session.user as any).role === "ADMIN") {
         router.push("/admin/dashboard");
       } else {
         router.push("/dashboard");
       }
     } catch (err: any) {
-      setError("An unexpected error occurred. Please try again.");
+      setError("Security protocols failed. Please try again.");
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-[#020617] flex items-center justify-center p-4">
-      <div className="w-full max-w-[380px] space-y-6">
+    <div className="min-h-screen bg-[#F9FAFB] flex items-center justify-center p-6 relative overflow-hidden">
+      {/* Background Decorative Element */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-[500px] bg-rose-100/40 blur-[120px] -z-10 rounded-full" />
+      
+      <div className="w-full max-w-[420px] space-y-8">
         
-        {/* Logo & Info */}
-        <div className="text-center space-y-4">
-          <Link href="/" className="inline-block group">
-            <BrandLogo size="lg" className="flex-col !gap-5" />
+        {/* Header */}
+        <div className="space-y-2">
+          <Link href="/" className="flex justify-center mb-8">
+            <BrandLogo />
           </Link>
-          <p className="text-slate-400 text-[10px] font-black uppercase tracking-[0.3em]">Accessing Your Secure Account</p>
+          <p className="text-gray-400 text-[10px] font-black uppercase tracking-[0.3em] text-center">Secure Authentication Protocol</p>
         </div>
 
-        {/* Error Box */}
+        {/* Error Notification */}
         {error && (
-          <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-[10px] font-bold p-4 rounded-xl flex items-center gap-3 uppercase tracking-widest">
-            <AlertCircle size={16} />
+          <div className="bg-white border-l-4 border-[#E11D48] text-gray-900 text-[10px] font-black p-5 rounded-2xl flex items-center gap-4 uppercase tracking-widest shadow-sm animate-in slide-in-from-top duration-300">
+            <AlertCircle size={20} className="text-[#E11D48]" />
             {error}
           </div>
         )}
 
-        {/* Form Container */}
-        <div className="bg-[#0f172a] border border-[#22c55e]/20 p-6 rounded-[2.5rem] shadow-xl shadow-[#22c55e]/5">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-1">
-              <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Identity</label>
+        {/* Form Card */}
+        <div className="bg-white border border-gray-100 p-8 rounded-[3rem] shadow-2xl shadow-rose-100/50">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase text-gray-400 ml-1 tracking-widest">Identity (Email)</label>
               <div className="relative group">
-                <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#22c55e] transition" size={18} />
+                <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-[#E11D48] transition-colors" size={20} />
                 <input 
                   type="email" 
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Email address"
-                  autoComplete="email"
-                  className="w-full bg-[#1e293b] border border-[#22c55e]/20 rounded-2xl py-4 pl-12 pr-4 text-sm text-white focus:outline-none focus:border-[#22c55e]/50 focus:shadow-[0_0_15px_rgba(34,197,94,0.2)] transition-all placeholder:text-slate-500"
+                  placeholder="name@protocol.com"
+                  className="w-full bg-gray-50 border border-gray-100 rounded-[1.5rem] py-5 pl-14 pr-5 text-sm font-bold text-gray-900 focus:outline-none focus:border-rose-200 focus:bg-white focus:ring-4 focus:ring-rose-50 transition-all placeholder:text-gray-300"
                 />
               </div>
             </div>
 
-            <div className="space-y-1">
-              <div className="flex justify-between items-center ml-1">
-                <label className="text-[10px] font-black uppercase text-slate-400">Security Key</label>
-              </div>
+            <div className="space-y-2">
+              <label className="text-[10px] font-black uppercase text-gray-400 ml-1 tracking-widest">Security Key</label>
               <div className="relative group">
-                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 group-focus-within:text-[#22c55e] transition" size={18} />
+                <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-[#E11D48] transition-colors" size={20} />
                 <input 
                   type={showPassword ? "text" : "password"} 
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Password"
-                  autoComplete="current-password"
-                  className="w-full bg-[#1e293b] border border-[#22c55e]/20 rounded-2xl py-4 pl-12 pr-12 text-sm text-white focus:outline-none focus:border-[#22c55e]/50 focus:shadow-[0_0_15px_rgba(34,197,94,0.2)] transition-all placeholder:text-slate-500"
+                  placeholder="••••••••"
+                  className="w-full bg-gray-50 border border-gray-100 rounded-[1.5rem] py-5 pl-14 pr-14 text-sm font-bold text-gray-900 focus:outline-none focus:border-rose-200 focus:bg-white focus:ring-4 focus:ring-rose-50 transition-all placeholder:text-gray-300"
                 />
                 <button 
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-[#22c55e]"
+                  className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-300 hover:text-[#E11D48] transition-colors"
                 >
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
             </div>
@@ -117,24 +126,25 @@ export default function LoginPage() {
             <button 
               disabled={loading}
               type="submit" 
-              className="w-full bg-[#22c55e] hover:bg-[#16a34a] text-black font-black py-4 rounded-2xl transition-all active:scale-95 flex items-center justify-center gap-2 shadow-lg shadow-[#22c55e]/30 mt-2 disabled:opacity-70 disabled:cursor-not-allowed uppercase text-[12px] tracking-widest"
+              className="w-full bg-[#E11D48] hover:bg-[#BE123C] text-white font-black py-5 rounded-[1.5rem] transition-all active:scale-95 flex items-center justify-center gap-3 shadow-xl shadow-rose-200 mt-4 disabled:opacity-70 disabled:cursor-not-allowed uppercase text-[11px] tracking-[0.2em]"
             >
               {loading ? (
-                <><Loader2 className="animate-spin" size={20} /> Authenticating...</>
+                <><Loader2 className="animate-spin" size={20} /> Verifying...</>
               ) : (
-                <><LogIn size={18} /> Access Account</>
+                <><LogIn size={20} /> Authorize Login</>
               )}
             </button>
           </form>
         </div>
 
-        <div className="text-center space-y-4">
-          <p className="text-slate-400 text-xs">
-            New to Global Trust Cash?{" "}
-            <Link href="/register" className="text-[#22c55e] font-bold hover:underline italic">Register Now</Link>
+        {/* Footer Actions */}
+        <div className="text-center space-y-6">
+          <p className="text-gray-400 text-[11px] font-bold uppercase tracking-tighter">
+            New Node?{" "}
+            <Link href="/register" className="text-[#E11D48] hover:underline underline-offset-4 decoration-2">Create Account</Link>
           </p>
-          <Link href="/" className="inline-block text-slate-400 hover:text-[#22c55e] text-[10px] font-black uppercase tracking-widest transition italic">
-            ← Back to Terminal
+          <Link href="/" className="inline-flex items-center gap-2 text-gray-400 hover:text-gray-900 text-[10px] font-black uppercase tracking-widest transition-all italic">
+            ← Terminal Mainframe
           </Link>
         </div>
       </div>
