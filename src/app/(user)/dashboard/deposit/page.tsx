@@ -43,7 +43,7 @@ export default function DepositPage() {
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
-    // Custom soft alert could be added here
+    alert("Copied to clipboard!");
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -68,16 +68,24 @@ export default function DepositPage() {
         body: JSON.stringify({ amount: parseFloat(amount), gateway: selectedMethod.name, slipImage })
       });
       if(res.ok) {
-        alert("Request Sent!");
+        alert("Request Sent Successfully!");
         setSelectedMethod(null);
         setAmount("");
         setSlipImage("");
       }
-    } catch (err) { console.error(err); } 
-    finally { setLoading(false); }
+    } catch (err) { 
+      console.error(err); 
+      alert("Something went wrong!");
+    } finally { 
+      setLoading(false); 
+    }
   };
 
-  const formatPKR = (val: number) => val.toLocaleString('en-PK', { minimumFractionDigits: 2 });
+  // ✅ FIXED: Added (val || 0) to prevent 'undefined' error
+  const formatPKR = (val: number) => (val || 0).toLocaleString('en-PK', { 
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2 
+  });
 
   return (
     <div className="bg-[#F3F4F6] min-h-screen p-5 md:p-10 pt-24 lg:pt-8 font-sans text-[#1F2937]">
@@ -102,7 +110,10 @@ export default function DepositPage() {
           <div className="bg-white p-8 rounded-[2.5rem] shadow-[0_10px_40px_rgba(0,0,0,0.03)] border border-white flex justify-between items-center">
             <div>
               <p className="text-[10px] font-black text-[#9CA3AF] uppercase tracking-widest mb-1">Available Balance</p>
-              <h3 className="text-3xl font-black text-[#111827]">Rs. {profile ? formatPKR(profile.balance) : "0.00"}</h3>
+              {/* ✅ SAFE ACCESS */}
+              <h3 className="text-3xl font-black text-[#111827]">
+                Rs. {profile ? formatPKR(profile.balance) : "0.00"}
+              </h3>
             </div>
             <div className="bg-[#FFF1F2] p-4 rounded-2xl text-[#E11D48]">
               <Wallet size={24} />
@@ -111,7 +122,10 @@ export default function DepositPage() {
           <div className="bg-[#111827] p-8 rounded-[2.5rem] shadow-xl flex justify-between items-center">
             <div>
               <p className="text-[10px] font-black text-white/50 uppercase tracking-widest mb-1">Total Funded</p>
-              <h3 className="text-3xl font-black text-white italic font-serif">Rs. {profile ? formatPKR(profile.totalDeposited) : "0.00"}</h3>
+              {/* ✅ SAFE ACCESS */}
+              <h3 className="text-3xl font-black text-white italic font-serif">
+                Rs. {profile ? formatPKR(profile.totalDeposited) : "0.00"}
+              </h3>
             </div>
             <div className="bg-white/10 p-4 rounded-2xl text-[#E11D48]">
               <Zap size={24} />
@@ -141,7 +155,7 @@ export default function DepositPage() {
           </div>
         </div>
 
-        {/* Form Console - Only shows when method selected */}
+        {/* Form Console */}
         {selectedMethod && (
           <div className="animate-in fade-in slide-in-from-bottom-6 duration-500">
             <div className="bg-white rounded-[3rem] shadow-[0_30px_60px_rgba(0,0,0,0.06)] border border-[#F3F4F6] overflow-hidden">
@@ -161,6 +175,7 @@ export default function DepositPage() {
                         <p className="text-xl font-mono font-bold text-[#111827] break-all">{selectedMethod.account || selectedMethod.address}</p>
                       </div>
                       <button 
+                        type="button"
                         onClick={() => handleCopy(selectedMethod.account || selectedMethod.address)}
                         className="bg-[#111827] text-white p-4 rounded-2xl hover:bg-[#E11D48] transition-colors shadow-lg active:scale-90"
                       >
@@ -228,6 +243,7 @@ export default function DepositPage() {
                     </div>
 
                     <button 
+                      type="submit"
                       disabled={loading}
                       className="w-full bg-[#111827] py-6 rounded-2xl font-black text-white uppercase tracking-[0.2em] text-xs hover:bg-black transition-all shadow-xl shadow-gray-200 flex items-center justify-center gap-3 disabled:opacity-50"
                     >
@@ -235,12 +251,10 @@ export default function DepositPage() {
                     </button>
                   </form>
                 </div>
-
               </div>
             </div>
           </div>
         )}
-
       </div>
     </div>
   );
