@@ -47,7 +47,7 @@ export default function UserSidebar() {
     { icon: <Landmark size={20} />, label: "Invest Plans", href: "/dashboard/plans" },
     { icon: <ArrowDownRight size={20} />, label: "Deposit", href: "/dashboard/deposit" },
     { icon: <ArrowUpLeft size={20} />, label: "Withdraw", href: "/dashboard/withdraw" },
-    { icon: <Users2 size={20} />, label: "Affiliates", href: "/dashboard/affiliates" },
+    { icon: <Users2 size={20} />, label: "Referrals", href: "/dashboard/affiliates" },
     { icon: <Settings size={20} />, label: "Settings", href: "/dashboard/settings" },
   ];
 

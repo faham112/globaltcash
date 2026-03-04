@@ -31,7 +31,7 @@ export default async function ReferralsPage() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
             <h1 className="text-4xl font-black tracking-tighter text-[#111827] uppercase italic">
-              Affiliate <span className="text-[#E11D48]">Network</span>
+            Referral<span className="text-[#E11D48]">Network</span>
             </h1>
             <p className="text-[#6B7280] text-[10px] font-black uppercase tracking-[0.4em] mt-2">
               Scale your team • Earn 10% instant commission
@@ -65,17 +65,17 @@ export default async function ReferralsPage() {
                   <div className="text-center sm:text-left space-y-2">
                     <div className="flex items-center justify-center sm:justify-start gap-3">
                       <span className="px-3 py-1 bg-[#E11D48] text-white text-[9px] font-black uppercase tracking-widest rounded-full">Elite Tier</span>
-                      <h2 className="text-2xl md:text-4xl font-black text-white uppercase italic tracking-tighter">Growth Link</h2>
+                      <h2 className="text-2xl md:text-4xl font-black text-white uppercase italic tracking-tighter">Referral Link</h2>
                     </div>
                     <p className="text-white/40 text-xs font-bold uppercase tracking-[0.2em] flex items-center justify-center sm:justify-start gap-2">
                       <Activity size={14} className="text-[#E11D48]" />
-                      Invite partners to unlock passive streams
+                      Invite members to unlock passive income
                     </p>
                   </div>
                 </div>
 
                 <div className="w-full space-y-4">
-                  <p className="text-white/20 text-[10px] uppercase font-black tracking-[0.3em] ml-2">Personal Invitation URI</p>
+                  <p className="text-white/20 text-[10px] uppercase font-black tracking-[0.3em] ml-2">Personal Referral URL</p>
                   <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 bg-white/[0.03] border border-white/10 p-3 rounded-[2rem] backdrop-blur-md group-hover:border-[#E11D48]/30 transition-all shadow-inner">
                     <div className="flex-1 px-5 py-3 sm:py-0 overflow-hidden">
                       <p className="text-white/80 text-sm font-mono truncate tracking-tight">{referralLink}</p>
@@ -95,14 +95,14 @@ export default async function ReferralsPage() {
                       <Users size={30} strokeWidth={2.5} />
                    </div>
                    <div>
-                      <h3 className="text-2xl font-black uppercase italic tracking-tighter text-[#111827]">Partner<br/><span className="text-[#E11D48]">Stats</span></h3>
+                      <h3 className="text-2xl font-black uppercase italic tracking-tighter text-[#111827]">Members<br/><span className="text-[#E11D48]">Status</span></h3>
                    </div>
                 </div>
                 
                 <div className="space-y-8">
                   <div className="bg-[#F9FAFB] p-6 rounded-[2rem] border border-[#F3F4F6]">
-                      <p className="text-[#9CA3AF] text-[10px] font-black uppercase tracking-widest mb-1">Active Network</p>
-                      <h4 className="text-4xl font-black text-[#111827] italic">{user.referredUsers?.length || 0} <span className="text-sm font-bold text-[#6B7280] not-italic uppercase tracking-widest ml-1">Partners</span></h4>
+                      <p className="text-[#9CA3AF] text-[10px] font-black uppercase tracking-widest mb-1">Active Members</p>
+                      <h4 className="text-4xl font-black text-[#111827] italic">{user.referredUsers?.length || 0} <span className="text-sm font-bold text-[#6B7280] not-italic uppercase tracking-widest ml-1">Members</span></h4>
                   </div>
                   
                   <div className="px-2">
