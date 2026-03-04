@@ -1,6 +1,6 @@
 "use client";
 
-import { Zap, Trophy, Crown, ArrowRight, X, Loader2, CheckCircle2, Cpu, AlertTriangle, LayoutGrid, Activity, Eye } from "lucide-react";
+import { Zap, Trophy, Crown, ArrowRight, X, Loader2, CheckCircle2, Cpu, Activity, Eye, Calendar, Percent, Clock, LayoutGrid, TrendingUp } from "lucide-react";
 import { useState, useEffect } from "react";
 
 const iconMap: Record<string, any> = {
@@ -17,8 +17,7 @@ export default function PlansPage() {
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeTerminals, setActiveTerminals] = useState<any[]>([]);
-  const [fetchingActive, setFetchingActive] = useState(true);
-  const [showMyPlans, setShowMyPlans] = useState(false); // New State for Button
+  const [showMyPlans, setShowMyPlans] = useState(false);
 
   useEffect(() => {
     fetchPlans();
@@ -37,9 +36,9 @@ export default function PlansPage() {
     try {
       const res = await fetch("/api/user/active-plans");
       const data = await res.json();
+      // Yahan hum ensure kar rahe hain ke data sahi se set ho
       if (Array.isArray(data)) setActiveTerminals(data);
     } catch (err) { console.error(err); }
-    finally { setFetchingActive(false); }
   };
 
   const handlePurchase = async () => {
@@ -60,7 +59,7 @@ export default function PlansPage() {
       if (res.ok) {
         setSuccess(true);
         fetchActivePlans();
-        setTimeout(() => { setSuccess(false); setSelectedPlan(null); setAmount(""); }, 2000);
+        setTimeout(() => { setSuccess(false); setSelectedPlan(null); setAmount(""); setError(null); }, 2000);
       } else {
         const data = await res.json();
         setError(data.error || "Low Balance");
@@ -73,7 +72,7 @@ export default function PlansPage() {
     <div className="bg-[#F8FAFC] min-h-screen p-4 md:p-10 pt-24 font-sans text-[#1E293B]">
       <div className="max-w-6xl mx-auto">
         
-        {/* TOP BAR: Header + VIEW BUTTON */}
+        {/* TOP BAR */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12 bg-white p-6 rounded-[2.5rem] shadow-sm border border-gray-100">
           <div>
             <h1 className="text-3xl font-black text-[#0F172A] uppercase italic leading-none">
@@ -82,16 +81,15 @@ export default function PlansPage() {
             <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mt-2">Select a package to start</p>
           </div>
           
-          {/* THE MAGIC BUTTON */}
           <button 
             onClick={() => setShowMyPlans(true)}
-            className="flex items-center gap-3 bg-[#0F172A] text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-black transition-all shadow-lg shadow-gray-200 active:scale-95"
+            className="flex items-center gap-3 bg-[#0F172A] text-white px-8 py-4 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-black transition-all shadow-lg active:scale-95"
           >
-            <Eye size={18} className="text-[#E11D48]" /> View My Plans ({activeTerminals.length})
+            <Eye size={18} className="text-[#E11D48]" /> My Active Plans ({activeTerminals.length})
           </button>
         </div>
 
-        {/* PLANS GRID */}
+        {/* MAIN PLANS GRID */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {plans.map((plan, i) => (
             <div key={i} className="bg-white p-8 rounded-[3rem] shadow-sm border border-gray-50 flex flex-col group hover:shadow-xl transition-all">
@@ -103,9 +101,10 @@ export default function PlansPage() {
                 <span className="text-5xl font-black text-[#0F172A]">{plan.roi}%</span>
                 <span className="text-[10px] font-bold text-[#E11D48] uppercase tracking-widest">/ Daily</span>
               </div>
-              <div className="space-y-3 mb-8 text-[11px] font-bold text-gray-400 uppercase border-t border-gray-50 pt-6">
-                <div className="flex justify-between"><span>Limit</span> <span className="text-[#0F172A]">Rs. {plan.minAmount}+</span></div>
-                <div className="flex justify-between"><span>Days</span> <span className="text-[#0F172A]">{plan.duration}</span></div>
+              <div className="space-y-4 mb-8 text-[11px] font-bold text-gray-400 uppercase border-t border-gray-50 pt-6">
+                <div className="flex justify-between"><span>Min Deposit</span><span className="text-[#0F172A]">Rs. {plan.minAmount.toLocaleString()}</span></div>
+                <div className="flex justify-between"><span>Max Deposit</span><span className="text-[#0F172A]">Rs. {plan.maxAmount.toLocaleString()}</span></div>
+                <div className="flex justify-between"><span>Duration</span><span className="text-[#E11D48] bg-rose-50 px-3 py-1 rounded-full text-[10px]">{plan.duration} Days</span></div>
               </div>
               <button onClick={() => setSelectedPlan(plan)} className="w-full py-4 bg-[#F8FAFC] text-[#0F172A] border border-gray-100 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-[#E11D48] hover:text-white transition-all flex items-center justify-center gap-2">
                 Invest Now <ArrowRight size={14} />
@@ -115,51 +114,107 @@ export default function PlansPage() {
         </div>
       </div>
 
-      {/* --- SIDE DRAWER FOR "MY PLANS" --- */}
+      {/* --- SLIM SIDE DRAWER --- */}
       {showMyPlans && (
         <div className="fixed inset-0 z-[200] flex justify-end">
           <div className="absolute inset-0 bg-[#0F172A]/40 backdrop-blur-sm" onClick={() => setShowMyPlans(false)} />
-          <div className="relative w-full max-w-md bg-white h-full shadow-2xl p-8 animate-in slide-in-from-right duration-300">
-            <div className="flex items-center justify-between mb-10 pb-6 border-b border-gray-100">
-               <h2 className="text-2xl font-black text-[#0F172A] uppercase italic">My Portfolios</h2>
-               <button onClick={() => setShowMyPlans(false)} className="p-2 bg-gray-50 rounded-full hover:bg-gray-100 transition-colors"><X size={20}/></button>
+          <div className="relative w-full max-w-sm bg-white h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
+            
+            <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-white sticky top-0 z-10">
+               <div>
+                  <h2 className="text-xl font-black text-[#0F172A] uppercase italic leading-none">My Portfolios</h2>
+                  <p className="text-[9px] font-bold text-gray-400 uppercase tracking-tighter mt-1">Live Profit Tracking</p>
+               </div>
+               <button onClick={() => setShowMyPlans(false)} className="p-2 bg-gray-50 rounded-full hover:bg-gray-100 transition-colors"><X size={18}/></button>
             </div>
 
-            <div className="space-y-4 overflow-y-auto max-h-[80vh] pr-2 custom-scrollbar">
-              {activeTerminals.length > 0 ? activeTerminals.map((node: any) => (
-                <div key={node.id} className="bg-[#0F172A] p-6 rounded-[2rem] relative overflow-hidden group">
-                  <div className="relative z-10 flex justify-between items-center mb-4">
-                    <div className="w-10 h-10 bg-[#E11D48] rounded-xl flex items-center justify-center text-white"><Cpu size={20}/></div>
-                    <span className="text-[8px] font-black text-green-400 bg-green-400/10 px-3 py-1 rounded-full uppercase tracking-widest">Running</span>
+            <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-[#F8FAFC] custom-scrollbar">
+              {activeTerminals.length > 0 ? activeTerminals.map((node: any) => {
+                // FALLBACK LOGIC: Agar roi/duration direct nahi milti tu plan object check karo
+                const displayRoi = node.roi || node.plan?.roi || "0";
+                const displayDuration = node.duration || node.plan?.duration || "0";
+                
+                return (
+                  <div key={node.id} className="bg-white border border-gray-100 p-4 rounded-3xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+                    
+                    {/* Top Section */}
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 bg-[#E11D48]/10 rounded-lg flex items-center justify-center text-[#E11D48]"><TrendingUp size={16}/></div>
+                          <div>
+                            <h4 className="text-[11px] font-black text-[#0F172A] uppercase leading-none">{node.planName}</h4>
+                            <p className="text-[8px] font-bold text-gray-400 uppercase mt-1">Status: <span className="text-green-500">Active</span></p>
+                          </div>
+                      </div>
+                      <div className="text-right">
+                         <p className="text-[14px] font-black text-[#0F172A]">Rs. {node.amount.toLocaleString()}</p>
+                         <p className="text-[7px] font-bold text-gray-400 uppercase">Principal Amount</p>
+                      </div>
+                    </div>
+
+                    {/* Stats Row (Slim & Full Details) */}
+                    <div className="grid grid-cols-3 gap-1 bg-gray-50/80 p-2.5 rounded-2xl mt-3">
+                        <div className="text-center border-r border-gray-200">
+                            <p className="text-[7px] font-bold text-gray-400 uppercase">Daily</p>
+                            <p className="text-[11px] font-black text-[#E11D48]">{displayRoi}%</p>
+                        </div>
+                        <div className="text-center border-r border-gray-200 px-1">
+                            <p className="text-[7px] font-bold text-gray-400 uppercase">Period</p>
+                            <p className="text-[11px] font-black text-[#0F172A]">{displayDuration}d</p>
+                        </div>
+                        <div className="text-center">
+                            <p className="text-[7px] font-bold text-gray-400 uppercase">Started</p>
+                            <p className="text-[9px] font-black text-gray-600">{new Date(node.createdAt).toLocaleDateString('en-GB', {day: 'numeric', month: 'short'})}</p>
+                        </div>
+                    </div>
+
+                    {/* Simple Progress Indicator */}
+                    <div className="mt-3 w-full bg-gray-100 h-1 rounded-full overflow-hidden">
+                        <div className="bg-[#E11D48] h-full w-1/3 animate-pulse"></div>
+                    </div>
                   </div>
-                  <div className="relative z-10">
-                    <p className="text-[9px] font-bold text-gray-500 uppercase tracking-widest">{node.planName}</p>
-                    <h4 className="text-2xl font-black text-white italic">Rs. {node.amount.toLocaleString()}</h4>
-                  </div>
-                  <div className="absolute -right-6 -bottom-6 w-20 h-20 bg-[#E11D48] opacity-10 rounded-full blur-2xl group-hover:opacity-20 transition-opacity"></div>
-                </div>
-              )) : (
+                );
+              }) : (
                 <div className="text-center py-20">
-                  <LayoutGrid size={48} className="mx-auto text-gray-100 mb-4" />
-                  <p className="text-gray-400 text-[10px] font-black uppercase tracking-[0.3em]">No Active Plans</p>
+                  <LayoutGrid size={40} className="mx-auto mb-2 text-gray-200" />
+                  <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">No active plans</p>
                 </div>
               )}
+            </div>
+            
+            <div className="p-4 bg-white border-t border-gray-100">
+                <p className="text-[8px] text-center font-bold text-gray-400 uppercase tracking-widest">Profits are credited every 24 hours</p>
             </div>
           </div>
         </div>
       )}
 
-      {/* PURCHASE MODAL (Same as before) */}
+      {/* PURCHASE MODAL remains same as previous enhanced version */}
       {selectedPlan && (
         <div className="fixed inset-0 z-[300] flex items-center justify-center p-6 bg-[#0F172A]/80 backdrop-blur-md">
-           <div className="bg-white w-full max-w-sm rounded-[3rem] p-10 relative animate-in zoom-in-95">
-             <button onClick={() => {setSelectedPlan(null); setError(null);}} className="absolute top-8 right-8 text-gray-300"><X size={24} /></button>
-             <h3 className="text-2xl font-black text-center uppercase italic mb-8">{selectedPlan.name}</h3>
-             <div className="space-y-6">
-                <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} className="w-full bg-gray-50 border-2 border-gray-100 focus:border-[#E11D48] rounded-[1.5rem] py-5 px-6 text-xl font-black outline-none transition-all" placeholder="Enter Amount" />
-                {error && <p className="text-[#E11D48] text-[9px] font-black uppercase text-center">{error}</p>}
-                <button onClick={handlePurchase} disabled={loading} className="w-full py-5 bg-[#E11D48] text-white rounded-[1.5rem] font-black uppercase text-xs tracking-widest shadow-xl shadow-rose-100 active:scale-95">
-                   {loading ? "Processing..." : success ? "Activated!" : "Confirm Investment"}
+           <div className="bg-white w-full max-w-sm rounded-[2.5rem] p-8 relative animate-in zoom-in-95">
+             <button onClick={() => {setSelectedPlan(null); setError(null); setAmount("");}} className="absolute top-6 right-6 text-gray-300 hover:text-red-500 transition-colors">
+                <X size={20} />
+             </button>
+             <div className="text-center mb-6">
+                <div className="mx-auto w-12 h-12 bg-rose-50 rounded-xl flex items-center justify-center mb-3">
+                    {iconMap[selectedPlan.icon] || <Zap className="text-[#E11D48]" size={24} />}
+                </div>
+                <h3 className="text-xl font-black text-[#0F172A] uppercase italic">{selectedPlan.name}</h3>
+                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Activation Panel</p>
+             </div>
+             <div className="bg-gray-50 rounded-2xl p-4 mb-6 border border-gray-100 space-y-2">
+                <div className="flex justify-between items-center"><span className="text-[9px] font-bold text-gray-400 uppercase">Profit</span><span className="text-xs font-black text-[#E11D48]">{selectedPlan.roi}% Daily</span></div>
+                <div className="flex justify-between items-center"><span className="text-[9px] font-bold text-gray-400 uppercase">Duration</span><span className="text-xs font-black text-[#0F172A]">{selectedPlan.duration} Days</span></div>
+                <div className="flex justify-between items-center"><span className="text-[9px] font-bold text-gray-400 uppercase">Range</span><span className="text-[10px] font-black text-[#0F172A]">Rs. {selectedPlan.minAmount} - {selectedPlan.maxAmount}</span></div>
+             </div>
+             <div className="space-y-4">
+                <div className="relative">
+                    <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} className="w-full bg-gray-50 border-2 border-gray-100 focus:border-[#E11D48] rounded-xl py-4 px-5 text-lg font-black outline-none transition-all placeholder:text-gray-300" placeholder="0.00" />
+                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[9px] font-black text-gray-400">PKR</span>
+                </div>
+                <button onClick={handlePurchase} disabled={loading || success} className={`w-full py-4 rounded-xl font-black uppercase text-xs tracking-widest transition-all ${success ? "bg-green-500" : "bg-[#E11D48]"} text-white shadow-lg active:scale-95`}>
+                   {loading ? "Processing..." : success ? "Activated!" : "Invest Now"}
                 </button>
              </div>
            </div>
