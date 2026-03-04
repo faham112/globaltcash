@@ -13,13 +13,12 @@ model User {
   password        String
   role            Role         @default(USER)
   balance         Float        @default(0.0)
-  // 👇 Added this field for your dashboard card
-  totalDeposit    Float        @default(0.0) 
+  totalDeposit    Float        @default(0.0)
   createdAt       DateTime     @default(now())
   name            String?
   walletAddress   String?
   twoFactorSecret String?
-  isTwoFactorEnabled Boolean   @default(false)
+  isTwoFactorEnabled Boolean    @default(false)
   deposits        Deposit[]
   withdrawals     Withdrawal[]
   referrerId      String?
@@ -40,17 +39,29 @@ model SystemSetting {
 }
 
 model Deposit {
-  id              String        @id @default(cuid())
+  id              String         @id @default(cuid())
   userId          String
   amount          Float
-  gateway         String?       // "JazzCash", "EasyPaisa", "USDT"
+  gateway         String?       
   planName        String?       @default("Manual Deposit")
   transactionId   String?       @unique 
   transactionHash String?       @unique 
   slipImage       String?       
-  status          DepositStatus @default(PENDING)
-  createdAt       DateTime      @default(now())
-  user            User          @relation(fields: [userId], references: [id])
+  status          DepositStatus  @default(PENDING)
+  createdAt       DateTime       @default(now())
+  // Timer aur Records ke liye niche wale fields
+  lastClaimedAt   DateTime       @default(now())
+  profitRecords   ProfitRecord[] 
+  user            User           @relation(fields: [userId], references: [id])
+}
+
+model ProfitRecord {
+  id          String   @id @default(cuid())
+  depositId   String
+  amount      Float
+  status      String   @default("PENDING") // PENDING, CLAIMED
+  createdAt   DateTime @default(now())
+  deposit     Deposit  @relation(fields: [depositId], references: [id])
 }
 
 model Withdrawal {

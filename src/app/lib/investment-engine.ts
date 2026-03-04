@@ -1,35 +1,43 @@
 import { db } from "@/lib/db";
 
 export async function distributeDailyProfits() {
-  // 1. Sab active deposits dhundo taake unka profit calculate ho sake
-  const activeDeposits = await db.deposit.findMany({
-    where: { status: "ACTIVE" },
-  });
+  console.log("[ENGINE] Starting daily profit generation...");
 
-  // Fetch all plans once to avoid repeated queries in the loop
-  const plans = await db.plan.findMany();
-  const planMap = new Map(plans.map(p => [(p as any).name, p]));
-
-  for (const deposit of activeDeposits) {
-    const plan: any = planMap.get(deposit.planName || "");
-    
-    // Default rate if plan not found (fallback)
-    let rate = 0.01; 
-    
-    if (plan) {
-      rate = plan.roi / 100; // Database stores as percentage (e.g., 2.5)
-    }
-
-    const profit = deposit.amount * rate;
-
-    // 2. User ka balance update karein atomically
-    await db.user.update({
-      where: { id: deposit.userId },
-      data: {
-        balance: { increment: profit }
-      }
+  try {
+    // 1. Sirf ACTIVE deposits nikaalein
+    const activeDeposits = await db.deposit.findMany({
+      where: { status: "ACTIVE" },
     });
 
-    console.log(`[ENGINE] Profit of ${profit} (${(rate*100).toFixed(1)}%) added to user ${deposit.userId} for plan ${deposit.planName}`);
+    // 2. Plans ka data map kar lein ROI check karne ke liye
+    const plans = await db.plan.findMany();
+    const planMap = new Map(plans.map(p => [p.name, p]));
+
+    for (const deposit of activeDeposits) {
+      const plan = planMap.get(deposit.planName || "");
+      
+      if (!plan) {
+        console.warn(`[ENGINE] Plan ${deposit.planName} not found for deposit ${deposit.id}`);
+        continue;
+      }
+
+      // 3. Daily Profit Calculate karein (e.g., 30000 * 2.5 / 100)
+      const dailyProfit = deposit.amount * (plan.roi / 100);
+
+      // 4. Naya Profit Record create karein (Jo user ko button ki surat mein dikhega)
+      await db.profitRecord.create({
+        data: {
+          depositId: deposit.id,
+          amount: dailyProfit,
+          status: "PENDING"
+        }
+      });
+
+      console.log(`[ENGINE] ✅ Generated Rs.${dailyProfit} pending claim for User: ${deposit.userId}`);
+    }
+
+    console.log("[ENGINE] Profit generation completed successfully.");
+  } catch (error) {
+    console.error("[ENGINE] Critical Error:", error);
   }
 }

@@ -36,7 +36,6 @@ export default function PlansPage() {
     try {
       const res = await fetch("/api/user/active-plans");
       const data = await res.json();
-      // Yahan hum ensure kar rahe hain ke data sahi se set ho
       if (Array.isArray(data)) setActiveTerminals(data);
     } catch (err) { console.error(err); }
   };
@@ -104,7 +103,7 @@ export default function PlansPage() {
               <div className="space-y-4 mb-8 text-[11px] font-bold text-gray-400 uppercase border-t border-gray-50 pt-6">
                 <div className="flex justify-between"><span>Min Deposit</span><span className="text-[#0F172A]">Rs. {plan.minAmount.toLocaleString()}</span></div>
                 <div className="flex justify-between"><span>Max Deposit</span><span className="text-[#0F172A]">Rs. {plan.maxAmount.toLocaleString()}</span></div>
-                <div className="flex justify-between"><span>Duration</span><span className="text-[#E11D48] bg-rose-50 px-3 py-1 rounded-full text-[10px]">{plan.duration} Days</span></div>
+                <div className="flex justify-between"><span>Duration</span><span className="text-[#E11D48] bg-rose-50 px-3 py-1 rounded-full text-[10px]">{plan.duration}</span></div>
               </div>
               <button onClick={() => setSelectedPlan(plan)} className="w-full py-4 bg-[#F8FAFC] text-[#0F172A] border border-gray-100 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-[#E11D48] hover:text-white transition-all flex items-center justify-center gap-2">
                 Invest Now <ArrowRight size={14} />
@@ -114,86 +113,75 @@ export default function PlansPage() {
         </div>
       </div>
 
-      {/* --- SLIM SIDE DRAWER --- */}
+      {/* --- ULTRA-SLIM SIDE DRAWER --- */}
       {showMyPlans && (
         <div className="fixed inset-0 z-[200] flex justify-end">
           <div className="absolute inset-0 bg-[#0F172A]/40 backdrop-blur-sm" onClick={() => setShowMyPlans(false)} />
           <div className="relative w-full max-w-sm bg-white h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
             
-            <div className="p-6 border-b border-gray-100 flex items-center justify-between bg-white sticky top-0 z-10">
+            <div className="p-5 border-b border-gray-100 flex items-center justify-between bg-white sticky top-0 z-10">
                <div>
-                  <h2 className="text-xl font-black text-[#0F172A] uppercase italic leading-none">My Portfolios</h2>
-                  <p className="text-[9px] font-bold text-gray-400 uppercase tracking-tighter mt-1">Live Profit Tracking</p>
+                  <h2 className="text-lg font-black text-[#0F172A] uppercase italic leading-none">Portfolios</h2>
+                  <p className="text-[8px] font-bold text-gray-400 uppercase tracking-tighter mt-1">Live Tracking</p>
                </div>
-               <button onClick={() => setShowMyPlans(false)} className="p-2 bg-gray-50 rounded-full hover:bg-gray-100 transition-colors"><X size={18}/></button>
+               <button onClick={() => setShowMyPlans(false)} className="p-1.5 bg-gray-50 rounded-full hover:bg-gray-100"><X size={16}/></button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-[#F8FAFC] custom-scrollbar">
+            <div className="flex-1 overflow-y-auto p-3 space-y-2 bg-[#F8FAFC] custom-scrollbar">
               {activeTerminals.length > 0 ? activeTerminals.map((node: any) => {
-                // FALLBACK LOGIC: Agar roi/duration direct nahi milti tu plan object check karo
                 const displayRoi = node.roi || node.plan?.roi || "0";
                 const displayDuration = node.duration || node.plan?.duration || "0";
                 
                 return (
-                  <div key={node.id} className="bg-white border border-gray-100 p-4 rounded-3xl shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
-                    
-                    {/* Top Section */}
-                    <div className="flex justify-between items-start mb-2">
-                      <div className="flex items-center gap-2">
-                          <div className="w-8 h-8 bg-[#E11D48]/10 rounded-lg flex items-center justify-center text-[#E11D48]"><TrendingUp size={16}/></div>
-                          <div>
-                            <h4 className="text-[11px] font-black text-[#0F172A] uppercase leading-none">{node.planName}</h4>
-                            <p className="text-[8px] font-bold text-gray-400 uppercase mt-1">Status: <span className="text-green-500">Active</span></p>
-                          </div>
-                      </div>
-                      <div className="text-right">
-                         <p className="text-[14px] font-black text-[#0F172A]">Rs. {node.amount.toLocaleString()}</p>
-                         <p className="text-[7px] font-bold text-gray-400 uppercase">Principal Amount</p>
-                      </div>
+                  <div key={node.id} className="bg-white border border-gray-100 p-3 rounded-2xl shadow-sm hover:border-[#E11D48]/30 transition-all relative overflow-hidden group">
+                    {/* Compact Top Section */}
+                    <div className="flex justify-between items-center mb-2">
+                        <div className="flex items-center gap-2">
+                            <div className="w-7 h-7 bg-rose-50 rounded-lg flex items-center justify-center text-[#E11D48]"><TrendingUp size={14}/></div>
+                            <h4 className="text-[10px] font-black text-[#0F172A] uppercase truncate max-w-[80px]">{node.planName}</h4>
+                        </div>
+                        <div className="text-right">
+                           <p className="text-xs font-black text-[#0F172A]">Rs.{node.amount.toLocaleString()}</p>
+                        </div>
                     </div>
 
-                    {/* Stats Row (Slim & Full Details) */}
-                    <div className="grid grid-cols-3 gap-1 bg-gray-50/80 p-2.5 rounded-2xl mt-3">
-                        <div className="text-center border-r border-gray-200">
-                            <p className="text-[7px] font-bold text-gray-400 uppercase">Daily</p>
-                            <p className="text-[11px] font-black text-[#E11D48]">{displayRoi}%</p>
+                    {/* Stats Grid (Ultra Slim) */}
+                    <div className="grid grid-cols-3 gap-0.5 bg-gray-50 rounded-xl p-1.5 border border-gray-100/50">
+                        <div className="text-center">
+                            <p className="text-[6px] font-bold text-gray-400 uppercase">ROI</p>
+                            <p className="text-[10px] font-black text-[#E11D48]">{displayRoi}%</p>
                         </div>
-                        <div className="text-center border-r border-gray-200 px-1">
-                            <p className="text-[7px] font-bold text-gray-400 uppercase">Period</p>
-                            <p className="text-[11px] font-black text-[#0F172A]">{displayDuration}d</p>
+                        <div className="text-center border-x border-gray-200">
+                            <p className="text-[6px] font-bold text-gray-400 uppercase">Period</p>
+                            <p className="text-[10px] font-black text-[#0F172A]">{displayDuration}d</p>
                         </div>
                         <div className="text-center">
-                            <p className="text-[7px] font-bold text-gray-400 uppercase">Started</p>
-                            <p className="text-[9px] font-black text-gray-600">{new Date(node.createdAt).toLocaleDateString('en-GB', {day: 'numeric', month: 'short'})}</p>
+                            <p className="text-[6px] font-bold text-gray-400 uppercase">Started</p>
+                            <p className="text-[9px] font-black text-gray-500 uppercase">{new Date(node.createdAt).toLocaleDateString('en-GB', {day: 'numeric', month: 'short'})}</p>
                         </div>
-                    </div>
-
-                    {/* Simple Progress Indicator */}
-                    <div className="mt-3 w-full bg-gray-100 h-1 rounded-full overflow-hidden">
-                        <div className="bg-[#E11D48] h-full w-1/3 animate-pulse"></div>
                     </div>
                   </div>
                 );
               }) : (
-                <div className="text-center py-20">
-                  <LayoutGrid size={40} className="mx-auto mb-2 text-gray-200" />
-                  <p className="text-[10px] font-black uppercase tracking-widest text-gray-400">No active plans</p>
+                <div className="text-center py-20 opacity-20">
+                  <LayoutGrid size={32} className="mx-auto mb-2" />
+                  <p className="text-[8px] font-black uppercase">Empty</p>
                 </div>
               )}
             </div>
             
-            <div className="p-4 bg-white border-t border-gray-100">
-                <p className="text-[8px] text-center font-bold text-gray-400 uppercase tracking-widest">Profits are credited every 24 hours</p>
+            <div className="p-3 bg-white border-t border-gray-100 text-center">
+                <p className="text-[7px] font-bold text-gray-400 uppercase tracking-widest">Syncing with blockchain...</p>
             </div>
           </div>
         </div>
       )}
 
-      {/* PURCHASE MODAL remains same as previous enhanced version */}
+      {/* PURCHASE MODAL */}
       {selectedPlan && (
         <div className="fixed inset-0 z-[300] flex items-center justify-center p-6 bg-[#0F172A]/80 backdrop-blur-md">
            <div className="bg-white w-full max-w-sm rounded-[2.5rem] p-8 relative animate-in zoom-in-95">
-             <button onClick={() => {setSelectedPlan(null); setError(null); setAmount("");}} className="absolute top-6 right-6 text-gray-300 hover:text-red-500 transition-colors">
+             <button onClick={() => {setSelectedPlan(null); setError(null); setAmount("");}} className="absolute top-6 right-6 text-gray-300 hover:text-red-500">
                 <X size={20} />
              </button>
              <div className="text-center mb-6">
@@ -201,18 +189,15 @@ export default function PlansPage() {
                     {iconMap[selectedPlan.icon] || <Zap className="text-[#E11D48]" size={24} />}
                 </div>
                 <h3 className="text-xl font-black text-[#0F172A] uppercase italic">{selectedPlan.name}</h3>
-                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Activation Panel</p>
+                <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Activation</p>
              </div>
              <div className="bg-gray-50 rounded-2xl p-4 mb-6 border border-gray-100 space-y-2">
                 <div className="flex justify-between items-center"><span className="text-[9px] font-bold text-gray-400 uppercase">Profit</span><span className="text-xs font-black text-[#E11D48]">{selectedPlan.roi}% Daily</span></div>
-                <div className="flex justify-between items-center"><span className="text-[9px] font-bold text-gray-400 uppercase">Duration</span><span className="text-xs font-black text-[#0F172A]">{selectedPlan.duration} Days</span></div>
-                <div className="flex justify-between items-center"><span className="text-[9px] font-bold text-gray-400 uppercase">Range</span><span className="text-[10px] font-black text-[#0F172A]">Rs. {selectedPlan.minAmount} - {selectedPlan.maxAmount}</span></div>
+                <div className="flex justify-between items-center"><span className="text-[9px] font-bold text-gray-400 uppercase">Duration</span><span className="text-xs font-black text-[#0F172A]">{selectedPlan.duration}</span></div>
+                <div className="flex justify-between items-center"><span className="text-[9px] font-bold text-gray-400 uppercase">Range</span><span className="text-[10px] font-black text-[#0F172A]">Rs.{selectedPlan.minAmount} - {selectedPlan.maxAmount}</span></div>
              </div>
              <div className="space-y-4">
-                <div className="relative">
-                    <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} className="w-full bg-gray-50 border-2 border-gray-100 focus:border-[#E11D48] rounded-xl py-4 px-5 text-lg font-black outline-none transition-all placeholder:text-gray-300" placeholder="0.00" />
-                    <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[9px] font-black text-gray-400">PKR</span>
-                </div>
+                <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} className="w-full bg-gray-50 border-2 border-gray-100 focus:border-[#E11D48] rounded-xl py-4 px-5 text-lg font-black outline-none transition-all" placeholder="0.00" />
                 <button onClick={handlePurchase} disabled={loading || success} className={`w-full py-4 rounded-xl font-black uppercase text-xs tracking-widest transition-all ${success ? "bg-green-500" : "bg-[#E11D48]"} text-white shadow-lg active:scale-95`}>
                    {loading ? "Processing..." : success ? "Activated!" : "Invest Now"}
                 </button>
