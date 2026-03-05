@@ -10,74 +10,68 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const { depositId } = await req.json(); // Frontend se depositId aa rahi hai
+    const { depositId } = await req.json();
     const userId = (session.user as any).id;
 
-    // 1. Is deposit ke liye latest PENDING record dhoondain
-    const record = await db.profitRecord.findFirst({
-      where: { 
-        depositId: depositId,
-        status: "PENDING",
-        deposit: {
-          userId: userId // Security: Ensure deposit user ka hi hai
-        }
-      },
-      include: { 
-        deposit: true 
-      }
+    // 1. Get Deposit and Plan Details
+    const deposit = await db.deposit.findUnique({
+      where: { id: depositId },
+      include: { user: true }
     });
 
-    if (!record) {
-      return NextResponse.json({ 
-        error: "No pending profit found or already claimed." 
-      }, { status: 400 });
+    if (!deposit || deposit.userId !== userId || deposit.status !== "ACTIVE") {
+      return NextResponse.json({ error: "Active deposit not found" }, { status: 400 });
     }
 
-    // 2. 24-Hour Buffer Check (Optional but safe)
-    // Agar aap chahte hain ke user exact 24h baad hi click kar sakay
+    // 2. Logic: Calculate Pending Days
     const now = new Date();
-    const oneDayAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-    const lastClaim = record.deposit.lastClaimedAt || record.deposit.createdAt;
+    const lastClaim = deposit.lastClaimedAt || deposit.createdAt;
+    const diffInMs = now.getTime() - lastClaim.getTime();
+    const pendingDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
 
-    if (lastClaim > oneDayAgo) {
-        return NextResponse.json({ error: "Too early to claim. Please wait." }, { status: 400 });
+    if (pendingDays < 1) {
+      return NextResponse.json({ error: "No profit available to claim yet" }, { status: 400 });
     }
 
-    // 3. Transaction: Atomic update (Balance + Status + LastClaimedAt)
+    // 3. Calculate Total Profit (Daily ROI * Pending Days)
+    // Assume ROI is stored in the deposit or fetched from plan
+    const dailyProfit = deposit.amount * (deposit.roi / 100);
+    const totalClaimAmount = dailyProfit * pendingDays;
+
+    // 4. Atomic Transaction
     await db.$transaction([
-      // A. User ka balance barhain
+      // Update User Balance
       db.user.update({
         where: { id: userId },
-        data: { 
-          balance: { increment: record.amount } 
-        }
+        data: { balance: { increment: totalClaimAmount } }
       }),
-      // B. Profit record ko COMPLETED mark karein (CLAIMED ki jagah standard status)
-      db.profitRecord.update({
-        where: { id: record.id },
-        data: { 
-          status: "COMPLETED" 
-        }
-      }),
-      // C. Deposit table mein claim ka time update karein taake timer reset ho jaye
+      // Update Deposit Timestamp (Resetting based on days claimed)
+      // Hum exact days ka difference set karenge taake remaining hours zaya na hon
       db.deposit.update({
         where: { id: depositId },
+        data: { 
+          lastClaimedAt: new Date(lastClaim.getTime() + pendingDays * 24 * 60 * 60 * 1000) 
+        }
+      }),
+      // Create a record for History
+      db.profitRecord.create({
         data: {
-          lastClaimedAt: now
+          depositId: deposit.id,
+          amount: totalClaimAmount,
+          status: "COMPLETED",
+          description: `Claimed ${pendingDays} day(s) profit`
         }
       })
     ]);
 
-    console.log(`💰 Profit Claimed: Rs. ${record.amount} for User: ${userId}`);
-
     return NextResponse.json({ 
       success: true, 
-      message: "Profit added to your wallet!",
-      amount: record.amount 
+      amount: totalClaimAmount, 
+      days: pendingDays 
     });
 
   } catch (error) {
-    console.error("Claim Route Error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    console.error("Multi-Claim Error:", error);
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
