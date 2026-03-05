@@ -13,47 +13,47 @@ export async function POST(req: Request) {
     const { depositId } = await req.json();
     const userId = (session.user as any).id;
 
-    // 1. Fetch Deposit (Casting to 'any' to avoid Prisma Type mismatch errors during build)
+    // 1. Fetch Deposit
     const deposit = await db.deposit.findUnique({
       where: { id: depositId },
     }) as any;
 
-    // Check if deposit exists and belongs to user
     if (!deposit || deposit.userId !== userId || deposit.status !== "ACTIVE") {
       return NextResponse.json({ error: "Active deposit not found" }, { status: 400 });
     }
 
-    // 2. Logic: Calculate Pending Days
+    // 2. Logic: Calculate Pending Days (24h blocks)
     const now = new Date();
     const lastClaim = deposit.lastClaimedAt || deposit.createdAt;
     const diffInMs = now.getTime() - lastClaim.getTime();
     const pendingDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
 
     if (pendingDays < 1) {
-      return NextResponse.json({ error: "No profit available to claim yet" }, { status: 400 });
+      return NextResponse.json({ 
+        error: "Profit is not yet ready. Please wait for 24 hours." 
+      }, { status: 400 });
     }
 
-    // 3. Calculate Total Profit 
-    // Yahan hum 'roi' direct deposit se le rahe hain (as any casting ensures build passes)
-    const roiValue = deposit.roi || 0; 
+    // 3. Calculation
+    const roiValue = deposit.roi || 0;
     const dailyProfit = deposit.amount * (roiValue / 100);
     const totalClaimAmount = dailyProfit * pendingDays;
 
     // 4. Atomic Transaction
     await db.$transaction([
-      // Update User Balance
+      // A. Update User Balance
       db.user.update({
         where: { id: userId },
         data: { balance: { increment: totalClaimAmount } }
       }),
-      // Update Deposit Timestamp
+      // B. Update Deposit Claim Date (Increment by exact days)
       db.deposit.update({
         where: { id: depositId },
         data: { 
           lastClaimedAt: new Date(lastClaim.getTime() + pendingDays * 24 * 60 * 60 * 1000) 
         }
       }),
-      // Create History Record (Make sure 'profitRecord' model exists in your schema)
+      // C. History Record
       db.profitRecord.create({
         data: {
           depositId: deposit.id,
@@ -71,7 +71,7 @@ export async function POST(req: Request) {
     });
 
   } catch (error) {
-    console.error("Claim Error:", error);
+    console.error("Critical Claim Error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }import { db } from "@/lib/db";
@@ -89,47 +89,47 @@ export async function POST(req: Request) {
     const { depositId } = await req.json();
     const userId = (session.user as any).id;
 
-    // 1. Fetch Deposit (Casting to 'any' to avoid Prisma Type mismatch errors during build)
+    // 1. Fetch Deposit
     const deposit = await db.deposit.findUnique({
       where: { id: depositId },
     }) as any;
 
-    // Check if deposit exists and belongs to user
     if (!deposit || deposit.userId !== userId || deposit.status !== "ACTIVE") {
       return NextResponse.json({ error: "Active deposit not found" }, { status: 400 });
     }
 
-    // 2. Logic: Calculate Pending Days
+    // 2. Logic: Calculate Pending Days (24h blocks)
     const now = new Date();
     const lastClaim = deposit.lastClaimedAt || deposit.createdAt;
     const diffInMs = now.getTime() - lastClaim.getTime();
     const pendingDays = Math.floor(diffInMs / (1000 * 60 * 60 * 24));
 
     if (pendingDays < 1) {
-      return NextResponse.json({ error: "No profit available to claim yet" }, { status: 400 });
+      return NextResponse.json({ 
+        error: "Profit is not yet ready. Please wait for 24 hours." 
+      }, { status: 400 });
     }
 
-    // 3. Calculate Total Profit 
-    // Yahan hum 'roi' direct deposit se le rahe hain (as any casting ensures build passes)
-    const roiValue = deposit.roi || 0; 
+    // 3. Calculation
+    const roiValue = deposit.roi || 0;
     const dailyProfit = deposit.amount * (roiValue / 100);
     const totalClaimAmount = dailyProfit * pendingDays;
 
     // 4. Atomic Transaction
     await db.$transaction([
-      // Update User Balance
+      // A. Update User Balance
       db.user.update({
         where: { id: userId },
         data: { balance: { increment: totalClaimAmount } }
       }),
-      // Update Deposit Timestamp
+      // B. Update Deposit Claim Date (Increment by exact days)
       db.deposit.update({
         where: { id: depositId },
         data: { 
           lastClaimedAt: new Date(lastClaim.getTime() + pendingDays * 24 * 60 * 60 * 1000) 
         }
       }),
-      // Create History Record (Make sure 'profitRecord' model exists in your schema)
+      // C. History Record
       db.profitRecord.create({
         data: {
           depositId: deposit.id,
@@ -147,7 +147,7 @@ export async function POST(req: Request) {
     });
 
   } catch (error) {
-    console.error("Claim Error:", error);
+    console.error("Critical Claim Error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
