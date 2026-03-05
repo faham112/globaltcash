@@ -9,6 +9,40 @@ const iconMap: Record<string, any> = {
   Crown: <Crown className="text-[#E11D48]" size={22} />,
 };
 
+function CountdownTimer({ nextClaimTime, onZero }: { nextClaimTime: number; onZero?: () => void }) {
+  const [timeLeft, setTimeLeft] = useState<number>(0);
+
+  useEffect(() => {
+    const updateTimer = () => {
+      const now = new Date().getTime();
+      const diff = nextClaimTime - now;
+      const newTimeLeft = Math.max(0, diff);
+      setTimeLeft(newTimeLeft);
+      if (newTimeLeft <= 0 && onZero) {
+        onZero();
+      }
+    };
+
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
+  }, [nextClaimTime, onZero]);
+
+  const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+  const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+
+  if (timeLeft <= 0) {
+    return <div className="text-[10px] font-bold text-green-600 uppercase">Claim Available!</div>;
+  }
+
+  return (
+    <div className="text-[10px] font-bold text-gray-400 uppercase">
+      Next claim in: {hours.toString().padStart(2, '0')}:{minutes.toString().padStart(2, '0')}:{seconds.toString().padStart(2, '0')}
+    </div>
+  );
+}
+
 export default function PlansPage() {
   const [plans, setPlans] = useState<any[]>([]);
   const [userPlans, setUserPlans] = useState<any[]>([]); 
@@ -115,7 +149,7 @@ export default function PlansPage() {
                         {claimingId === up.id ? "Claiming..." : `Claim Rs. ${(up.amount * up.roi/100 * pendingDays).toFixed(0)}`}
                       </button>
                     ) : (
-                      <div className="text-[10px] font-bold text-gray-400 flex items-center gap-1 uppercase"><Clock size={12}/> Next profit in less than 24h</div>
+                      <CountdownTimer nextClaimTime={lastClaim.getTime() + 24 * 60 * 60 * 1000} onZero={fetchUserDashboardData} />
                     )}
                   </div>
                 </div>
