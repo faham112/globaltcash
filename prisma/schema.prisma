@@ -50,6 +50,7 @@ model Deposit {
   status          DepositStatus  @default(PENDING)
   createdAt       DateTime       @default(now())
   lastClaimedAt   DateTime       @default(now())
+  nextClaimAt     DateTime?
   user            User           @relation(fields: [userId], references: [id])
   profitRecords   ProfitRecord[]
 }

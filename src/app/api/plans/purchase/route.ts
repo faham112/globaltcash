@@ -19,6 +19,9 @@ export async function POST(req: Request) {
 
     const transactionId = `PLAN-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
 
+    const nextClaimAtTime = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    console.log(`🛒 Plan purchase: ${planName} for user ${user.id}, nextClaimAt: ${nextClaimAtTime.toISOString()}`);
+
     await db.$transaction([
       db.user.update({
         where: { id: user.id },
@@ -31,7 +34,8 @@ export async function POST(req: Request) {
           planName: planName,
           gateway: "Internal", // Isko simple rakhein
           status: "ACTIVE" as any, // Plans dikhane ke liye aksar status "ACTIVE" chahiye hota hai
-          transactionId
+          transactionId,
+          nextClaimAt: nextClaimAtTime
         }
       })
     ]);

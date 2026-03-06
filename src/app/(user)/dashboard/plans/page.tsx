@@ -13,22 +13,29 @@ function CountdownTimer({ nextClaimTime, onZero }: { nextClaimTime: number; onZe
   const [timeLeft, setTimeLeft] = useState<number>(0);
 
   useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+
     const updateTimer = () => {
       const now = new Date().getTime();
       const diff = nextClaimTime - now;
       const newTimeLeft = Math.max(0, diff);
       setTimeLeft(newTimeLeft);
-      if (newTimeLeft <= 0 && onZero) {
+      if (newTimeLeft > 0) {
+        timeoutId = setTimeout(updateTimer, 1000);
+      } else if (onZero) {
         onZero();
       }
     };
 
     updateTimer();
-    const interval = setInterval(updateTimer, 1000);
-    return () => clearInterval(interval);
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+    };
   }, [nextClaimTime, onZero]);
 
-  const hours = Math.floor(timeLeft / (1000 * 60 * 60));
+  const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
   const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
   const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
 
@@ -36,9 +43,13 @@ function CountdownTimer({ nextClaimTime, onZero }: { nextClaimTime: number; onZe
     return <div className="text-[10px] font-bold text-green-600 uppercase">Claim Available!</div>;
   }
 
+  const timeString = days > 0 
+    ? `${days}d ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
+    : `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
   return (
     <div className="text-[10px] font-bold text-gray-400 uppercase">
-      Next claim in: {hours.toString().padStart(2, '0')}:{minutes.toString().padStart(2, '0')}:{seconds.toString().padStart(2, '0')}
+      Next claim in: {timeString}
     </div>
   );
 }
@@ -198,6 +209,7 @@ export default function PlansPage() {
                   <div className="text-[10px] mt-2">
                     <div>Claimed: Rs. {claimedAmt.toFixed(0)}</div>
                     <div>Pending: Rs. {pendingAmt.toFixed(0)}</div>
+                    <div>Purchased: {new Date(up.createdAt).toLocaleString()}</div>
                     {totalAvailable > 0 && (
                       <div>Progress: {percentClaimed.toFixed(1)}%</div>
                     )}
@@ -208,7 +220,7 @@ export default function PlansPage() {
                         {claimingId === up.id ? "Claiming..." : `Claim Rs. ${pendingAmt.toFixed(0)}`}
                       </button>
                     ) : (
-                      <CountdownTimer nextClaimTime={lastClaim.getTime() + 24 * 60 * 60 * 1000} onZero={fetchUserDashboardData} />
+                      <CountdownTimer nextClaimTime={up.nextClaimTime} onZero={fetchUserDashboardData} />
                     )}
                   </div>
                 </div>
