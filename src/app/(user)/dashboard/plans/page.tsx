@@ -155,7 +155,7 @@ export default function PlansPage() {
         <div className="mb-10 bg-white p-6 rounded-[2rem] shadow-sm flex justify-between items-center">
           <h1 className="text-2xl font-black italic uppercase">Investment <span className="text-[#E11D48]">Plans</span></h1>
           <button onClick={() => setIsDrawerOpen(true)} className="bg-[#0F172A] text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2">
-            <Coins size={18}/> My Portfolio ({userPlans.length})
+            <Coins size={18}/> My Purchased Plans ({userPlans.length})
           </button>
         </div>
 
@@ -186,7 +186,7 @@ export default function PlansPage() {
           <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setIsDrawerOpen(false)} />
           <div className="relative w-full max-w-md bg-white h-full p-8 shadow-2xl overflow-y-auto">
             <div className="flex justify-between items-center mb-8">
-              <h2 className="text-xl font-black uppercase">My <span className="text-[#E11D48]">Portfolio</span></h2>
+              <h2 className="text-xl font-black uppercase">My <span className="text-[#E11D48]">Purchased Plans</span></h2>
               <X className="cursor-pointer" onClick={() => setIsDrawerOpen(false)} />
             </div>
             <div className="mb-4 text-[12px] font-bold">
