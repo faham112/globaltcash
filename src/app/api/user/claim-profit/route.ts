@@ -53,7 +53,8 @@ export async function POST(req: Request) {
       db.deposit.update({
         where: { id: depositId },
         data: { 
-          lastClaimedAt: new Date(lastClaim.getTime() + pendingDays * 24 * 60 * 60 * 1000) 
+          lastClaimedAt: new Date(lastClaim.getTime() + pendingDays * 24 * 60 * 60 * 1000),
+          nextClaimAt: new Date(lastClaim.getTime() + (pendingDays + 1) * 24 * 60 * 60 * 1000)
         }
       }),
       db.profitRecord.create({

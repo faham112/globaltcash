@@ -42,7 +42,7 @@ export async function GET() {
     const plans = await db.plan.findMany();
 
     // Enrich activePlans with plan details and calculate claim stats
-    const enrichedActivePlans = activePlans.map(dep => {
+    const enrichedActivePlans = await Promise.all(activePlans.map(async dep => {
       const plan = plans.find(p => p.name === dep.planName);
       const roi = plan?.roi;
 
@@ -56,8 +56,23 @@ export async function GET() {
       const pendingDays = Math.floor((new Date().getTime() - lastClaim.getTime()) / (1000 * 60 * 60 * 24));
       const pendingAmount = roi && pendingDays >= 1 ? dep.amount * (roi / 100) * pendingDays : 0;
 
-      return { ...dep, plan, roi, claimedAmount, pendingAmount, pendingDays };
-    });
+      // Use nextClaimAt from database, or calculate and update if not set
+      let nextClaimTime: number;
+      if (dep.nextClaimAt) {
+        nextClaimTime = dep.nextClaimAt.getTime();
+        console.log(`✅ Using stored nextClaimAt for deposit ${dep.id}: ${new Date(nextClaimTime).toISOString()}`);
+      } else {
+        nextClaimTime = lastClaim.getTime() + 24 * 60 * 60 * 1000;
+        // Update the database with the calculated nextClaimAt
+        await db.deposit.update({
+          where: { id: dep.id },
+          data: { nextClaimAt: new Date(nextClaimTime) }
+        });
+        console.log(`⚠️ Updated nextClaimAt for deposit ${dep.id}: ${new Date(nextClaimTime).toISOString()}`);
+      }
+
+      return { ...dep, plan, roi, claimedAmount, pendingAmount, pendingDays, nextClaimTime };
+    }));
 
     // Calculate total pending claims
     let totalPendingClaims = 0;

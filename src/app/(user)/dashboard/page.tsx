@@ -200,7 +200,7 @@ const UserDashboard = () => {
                     </div>
                     <div>
                       <h4 className="font-black text-sm text-[#0F172A]">{plan.planName || 'Pro Plan'}</h4>
-                      <p className="text-[9px] font-bold text-gray-400 uppercase">Started: {new Date(plan.createdAt).toLocaleDateString()}</p>
+                      <p className="text-[9px] font-bold text-gray-400 uppercase">Started: {new Date(plan.createdAt).toLocaleString()}</p>
                     </div>
                   </div>
                   <div className="text-right">
