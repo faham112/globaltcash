@@ -76,7 +76,6 @@ export async function POST(req: Request) {
             where: { id: referrer.id },
             data: {
               balance: { increment: bonus },
-              referralCount: { increment: 1 },
               // Track total referred deposit volume so rewards can be based on sales amount
               milestoneProgress: { increment: Math.round(amount) }
             }
