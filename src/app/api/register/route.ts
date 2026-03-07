@@ -34,21 +34,32 @@ export async function POST(req: Request) {
       }
     }
 
-    // 5. Create user
-    const user = await db.user.create({
-      data: {
-        email,
-        name,
-        password: hashedPassword,
-        role: "USER", // Default role for signup
-        balance: 0,
-        referrerId: resolvedReferrerId,
-        ipAddress,
-        deviceFingerprint,
+    // 5. Create user; if referred, increment the referrer's referral count
+    const createdUser = await db.$transaction(async (tx) => {
+      const newUser = await tx.user.create({
+        data: {
+          email,
+          name,
+          password: hashedPassword,
+          role: "USER", // Default role for signup
+          balance: 0,
+          referrerId: resolvedReferrerId,
+          ipAddress,
+          deviceFingerprint,
+        }
+      });
+
+      if (resolvedReferrerId) {
+        await tx.user.update({
+          where: { id: resolvedReferrerId },
+          data: { referralCount: { increment: 1 } }
+        });
       }
+
+      return newUser;
     });
 
-    return NextResponse.json({ message: "User created successfully" }, { status: 201 });
+    return NextResponse.json({ message: "User created successfully", userId: createdUser.id }, { status: 201 });
   } catch (error: any) {
     console.error("Registration error:", error);
     return NextResponse.json({ error: error.message || "Something went wrong" }, { status: 500 });
