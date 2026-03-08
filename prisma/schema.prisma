@@ -51,7 +51,7 @@ model Deposit {
   id              String         @id @default(cuid())
   userId          String
   amount          Float
-  roi             Float          @default(0.0) // Added for Claim Profit Logic
+  roi             Float          @default(0.0)
   gateway         String?
   planName        String?        @default("Manual Deposit")
   transactionId   String?        @unique
