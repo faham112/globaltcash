@@ -12,6 +12,7 @@ model User {
   email              String       @unique
   password           String
   role               Role         @default(USER)
+  isFrozen           Boolean      @default(false)
   balance            Float        @default(0.0)
   createdAt          DateTime     @default(now())
   name               String?
