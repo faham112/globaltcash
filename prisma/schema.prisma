@@ -8,30 +8,30 @@ datasource db {
 }
 
 model User {
-  id                 String       @id @default(cuid())
-  email              String       @unique
+  id                 String          @id @default(cuid())
+  email              String          @unique
   password           String
-  role               Role         @default(USER)
-  isFrozen           Boolean      @default(false)
-  balance            Float        @default(0.0)
-  createdAt          DateTime     @default(now())
+  role               Role            @default(USER)
+  isFrozen           Boolean         @default(false)
+  balance            Float           @default(0.0)
+  createdAt          DateTime        @default(now())
   name               String?
   walletAddress      String?
   twoFactorSecret    String?
-  isTwoFactorEnabled Boolean      @default(false)
+  isTwoFactorEnabled Boolean         @default(false)
   referrerId         String?
-  totalDeposit       Float        @default(0.0)
-  referralCount      Int          @default(0)
-  rankLevel          String       @default("Starter")
-  milestoneProgress  Int          @default(0)
+  totalDeposit       Float           @default(0.0)
+  referralCount      Int             @default(0)
+  rankLevel          String          @default("Starter")
+  milestoneProgress  Int             @default(0)
   ipAddress          String?
   deviceFingerprint  String?
   deposits           Deposit[]
-  referrer           User?        @relation("UserReferrals", fields: [referrerId], references: [id])
-  referredUsers      User[]       @relation("UserReferrals")
+  referrer           User?           @relation("UserReferrals", fields: [referrerId], references: [id])
+  referredUsers      User[]          @relation("UserReferrals")
   withdrawals        Withdrawal[]
-  referrerReferrals  Referral[]   @relation("ReferrerReferrals")
-  refereeReferrals   Referral[]   @relation("RefereeReferrals")
+  referrerReferrals  Referral[]      @relation("ReferrerReferrals")
+  refereeReferrals   Referral[]      @relation("RefereeReferrals")
   claimedRewards     ClaimedReward[]
 }
 
@@ -51,6 +51,7 @@ model Deposit {
   id              String         @id @default(cuid())
   userId          String
   amount          Float
+  roi             Float          @default(0.0) // Added for Claim Profit Logic
   gateway         String?
   planName        String?        @default("Manual Deposit")
   transactionId   String?        @unique
@@ -98,15 +99,15 @@ model Plan {
 }
 
 model Reward {
-  id          String   @id @default(cuid())
-  title       String
-  description String
-  targetSales Int
-  prizeAmount Float
-  prizeType   String   @default("cash")
-  active      Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id             String          @id @default(cuid())
+  title          String
+  description    String
+  targetSales    Int
+  prizeAmount    Float
+  prizeType      String          @default("cash")
+  active         Boolean         @default(true)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
   claimedRewards ClaimedReward[]
 }
 
@@ -122,27 +123,27 @@ model ReferralRank {
 }
 
 model Referral {
-  id               String   @id @default(cuid())
-  referrerId       String
-  refereeId        String
-  commissionAmount Float
-  status           String   @default("PENDING")
-  ipAddress        String?
+  id                String   @id @default(cuid())
+  referrerId        String
+  refereeId         String
+  commissionAmount  Float
+  status            String   @default("PENDING")
+  ipAddress         String?
   deviceFingerprint String?
-  createdAt        DateTime @default(now())
-  referrer         User     @relation("ReferrerReferrals", fields: [referrerId], references: [id])
-  referee          User     @relation("RefereeReferrals", fields: [refereeId], references: [id])
+  createdAt         DateTime @default(now())
+  referrer          User     @relation("ReferrerReferrals", fields: [referrerId], references: [id])
+  referee           User     @relation("RefereeReferrals", fields: [refereeId], references: [id])
 }
 
 model ClaimedReward {
-  id         String   @id @default(cuid())
+  id         String    @id @default(cuid())
   userId     String
   rewardId   String
-  status     String   @default("PENDING")
-  claimedAt  DateTime @default(now())
+  status     String    @default("PENDING")
+  claimedAt  DateTime  @default(now())
   approvedAt DateTime?
-  user       User     @relation(fields: [userId], references: [id])
-  reward     Reward   @relation(fields: [rewardId], references: [id])
+  user       User      @relation(fields: [userId], references: [id])
+  reward     Reward    @relation(fields: [rewardId], references: [id])
 }
 
 enum Role {
