@@ -8,22 +8,33 @@ datasource db {
 }
 
 model User {
-  id              String       @id @default(cuid())
-  email           String       @unique
+  id              String          @id @default(cuid())
+  email           String          @unique
   password        String
-  role            Role         @default(USER)
-  balance         Float        @default(0.0)
-  totalDeposit    Float        @default(0.0)
-  createdAt       DateTime     @default(now())
+  role            Role            @default(USER)
+  balance         Float           @default(0.0)
+  totalDeposit    Float           @default(0.0)
+  createdAt       DateTime        @default(now())
   name            String?
   walletAddress   String?
   twoFactorSecret String?
-  isTwoFactorEnabled Boolean    @default(false)
+  isTwoFactorEnabled Boolean      @default(false)
+  
+  // Relations
   deposits        Deposit[]
   withdrawals     Withdrawal[]
+  claimedRewards  ClaimedReward[]
+  
+  // Referral Logic
   referrerId      String?
-  referrer        User?        @relation("UserReferrals", fields: [referrerId], references: [id])
-  referredUsers   User[]       @relation("UserReferrals")
+  referrer        User?           @relation("UserReferrals", fields: [referrerId], references: [id])
+  referredUsers   User[]          @relation("UserReferrals")
+  referralCount   Int             @default(0)
+  
+  // Rank Logic
+  rankLevel       String?         @default("Bronze")
+  rankId          String?
+  referralRank    ReferralRank?   @relation(fields: [rankId], references: [id])
 }
 
 model SystemSetting {
@@ -73,6 +84,36 @@ model Withdrawal {
   user      User     @relation(fields: [userId], references: [id])
 }
 
+model ReferralRank {
+  id           String   @id @default(cuid())
+  name         String   @unique
+  minReferrals Int
+  rewardAmount Float
+  users        User[]
+}
+
+model ClaimedReward {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  amount    Float
+  createdAt DateTime @default(now())
+}
+
+model Plan {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  minAmount   Float
+  maxAmount   Float
+  roi         Float    
+  duration    String   
+  icon        String?  @default("Zap")
+  popular     Boolean  @default(false)
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
 enum Role {
   USER
   ADMIN
@@ -90,18 +131,4 @@ enum DepositStatus {
   APPROVED
   REJECTED
   ACTIVE
-}
-
-model Plan {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  minAmount   Float
-  maxAmount   Float
-  roi         Float    
-  duration    String   
-  icon        String?  @default("Zap")
-  popular     Boolean  @default(false)
-  active      Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
 }
